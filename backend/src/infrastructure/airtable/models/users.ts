@@ -6,29 +6,36 @@ export class User {
 
     private static airtableService = new AirtableService(
         process.env.AIRTABLE_BASE_ID || '',
-        User.UsersTable
+        this.UsersTable
     );
 
     static UserSchema = z.object({
         id: z.uuid(),
-        Credentials: z.string().min(1),
-        LastName: z.string().min(1),
-        FirstName: z.string().min(1),
-        Avatar: z.string().url().optional().nullable(),
-        School: z.string().min(1),
-        Promo: z.string().min(1),
-        Email: z.email(),
+        lastname: z.string().min(1),
+        firstname: z.string().min(1),
+        avatar: z.string().optional().nullable(),
+        school: z.string().min(1),
+        promo: z.string().min(1),
+        email: z.email(),
         telephone: z.string().min(1),
-        Password: z.string().min(6),
-        isContacted: z.boolean().default(false),
-        CreatedAt: z.string().refine((date) => !isNaN(Date.parse(date)), {
-            message: 'Invalid date format',
-        }),
-        UpdatedAt: z.string().refine((date) => !isNaN(Date.parse(date)), {
-            message: 'Invalid date format',
-        }),
-        Comments: z.string().optional().nullable(),
+        password: z.string().min(6),
+        isContacted: z.boolean().default(false)
     });
+
+    static FieldsIds: Record<
+        Exclude<keyof z.infer<typeof this.UserSchema>, 'id'>,
+        string
+    > = {
+        lastname: 'fld7c1QwaRBHzWYb5',
+        firstname: 'fld0MygGJ98K0hpT1',
+        avatar: 'fldqjjQ5elQvobywE',
+        school: 'fldDbtAE3SGsYXM6Y',
+        promo: 'fldkbQeKTl6DaGMlh',
+        email: 'fldHZXZ38VqgdYWfQ',
+        telephone: 'fldVgiXxYxjZ2ttie',
+        password: 'fld1u1FcalVzZnRpO',
+        isContacted: 'fldpkwd30OmpkqLW5'
+    };
 
     static async getAll(): Promise<TUser[]> {
         const records = await this.airtableService.getAll();
