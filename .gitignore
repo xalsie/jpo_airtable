@@ -1,0 +1,11 @@
+# Ignore artifacts:
+node_modules
+dist
+*.log
+.env
+
+# Npm packages
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lock
