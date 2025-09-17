@@ -1,8 +1,8 @@
 <template>
-    <div class="container form-page">
+    <div class="container center">
         <h2>Inscription</h2>
         <form class="form" @submit.prevent="submit">
-            <div class="form-inputs">
+            <div class="form-elements">
                 <input v-model="name" placeholder="Nom" required />
                 <input
                     v-model="email"
@@ -18,7 +18,13 @@
                     minlength="6"
                 />
             </div>
-            <button type="submit">S'inscrire</button>
+
+            <div class="form-elements">
+                <button type="submit" class="primary">S'inscrire</button>
+                <button type="button" class="secondary">
+                    <router-link :to="'/'">Retour</router-link>
+                </button>
+            </div>
         </form>
         <div v-if="message" :style="{ color: messageColor }">{{ message }}</div>
     </div>

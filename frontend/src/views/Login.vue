@@ -1,5 +1,5 @@
 <template>
-    <div class="container form-page">
+    <div class="container center">
         <h2>Connexion</h2>
         <form class="form" @submit.prevent="submit">
             <div class="form-elements">
@@ -20,7 +20,9 @@
 
             <div class="form-elements">
                 <button type="submit" class="primary">Se connecter</button>
-                <button type="submit" class="secondary">Retour</button>
+                <button type="button" class="secondary">
+                    <router-link :to="'/'">Retour</router-link>
+                </button>
             </div>
         </form>
         <div v-if="message" :style="{ color: messageColor }">{{ message }}</div>
