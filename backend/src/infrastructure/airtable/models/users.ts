@@ -1,12 +1,12 @@
 import { z } from 'zod';
+import { env } from '../../../config/env';
 import AirtableService from '../airtableService';
 
-export class User {
+export class User {    
     private static UsersTable = 'tblPZ5goHdnAUoblK';
 
-    private static airtableService = new AirtableService(
-        process.env.AIRTABLE_BASE_ID || '',
-        this.UsersTable
+    private static airtableService = AirtableService.getInstance(
+        env.AIRTABLE_BASE_ID, this.UsersTable
     );
 
     static UserSchema = z.object({
@@ -37,8 +37,12 @@ export class User {
         isContacted: 'fldpkwd30OmpkqLW5'
     };
 
-    static async getAll(): Promise<TUser[]> {
-        const records = await this.airtableService.getAll();
+    static ViewIds = {
+        emailOnly: 'viwdo6xfIhUWTnlVo'
+    }
+
+    static async getAll({ view, fields }: { view?: string; fields?: string[] }): Promise<TUser[]> {
+        const records = await this.airtableService.getAll({ view, fields });
         return records as TUser[];
     }
 
