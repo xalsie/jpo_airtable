@@ -1,10 +1,10 @@
 import { FastifyInstance } from 'fastify';
-import { TProject } from '../infrastructure/airtable/models';
-import { ProjectService } from '../services';
+import { TInteractions } from '../infrastructure/airtable/models';
+import { InteractionService } from '../services';
 import Logger from '../utils/logger';
 
-export class ProjectController {
-    public static async register(server: FastifyInstance, prefix = '/api/projects') {
+export class InteractionController {
+    public static async register(server: FastifyInstance, prefix = '/api/interactions') {
         server.get(`${prefix}`, {
             schema: {
                 querystring: {
@@ -18,15 +18,15 @@ export class ProjectController {
         }, async (request, reply) => {
             try {
                 const { limit = 20, offset = 0 } = request.query as { limit?: number; offset?: number };
-                const projects: TProject[] = await ProjectService.getAll({ limit, offset });
+                const projects: TInteractions[] = await InteractionService.getAll({ limit, offset });
 
                 reply.status(200).send({ projects, limit, offset });
             } catch (err) {
-                Logger.error('ProjectController', 'Error fetching projects:', err);
+                Logger.error('InteractionController', 'Error fetching projects:', err);
                 reply.status(500).send({ message: 'Internal Server Error' });
             }
         });
     }
 }
 
-export default ProjectController;
+export default InteractionController;

@@ -4,7 +4,8 @@ import Logger from './utils/logger'
 import { env, EnvSchema } from "./config/env";
 import {
     AuthController,
-    ProjectController
+    ProjectController,
+    InteractionController
 } from "./controllers";
 
 const [envValid, envErrors] = (() => {
@@ -33,7 +34,8 @@ startServer().then(async ({ server }) => {
     try {
         const controllers: any[] = [
             AuthController,
-            ProjectController
+            ProjectController,
+            InteractionController
         ];
 
         for (const Controller of controllers) {
