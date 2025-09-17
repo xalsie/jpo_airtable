@@ -1,8 +1,6 @@
-import fastify, { FastifyInstance } from 'fastify';
-// import { TUser } from '../infrastructure/airtable/models/users';
+import { FastifyInstance } from 'fastify';
 import AuthService from '../services/auth.service';
 import Logger from '../utils/logger';
-import { env } from '../config';
 import { TUser } from '../infrastructure/airtable/models/users';
 
 export class AuthController {
@@ -11,17 +9,17 @@ export class AuthController {
             schema: {
                 body: {
                     type: 'object',
-                    required: ['Email', 'Password', 'confirmPassword', 'FirstName', 'LastName', 'School', 'Promo', 'telephone'],
+                    required: ['email', 'password', 'confirmPassword', 'firstname', 'lastname', 'school', 'promo', 'telephone'],
                     properties: {
-                    Email: { type: 'string', format: 'email' },
-                    Password: { type: 'string', minLength: 6 },
-                    confirmPassword: { type: 'string', minLength: 6 },
-                    FirstName: { type: 'string' },
-                    LastName: { type: 'string' },
-                    School: { type: 'string' },
-                    Promo: { type: 'string' },
-                    telephone: { type: 'string' },
-                    isContacted: { type: 'boolean' }
+                        email: { type: 'string', format: 'email' },
+                        password: { type: 'string', minLength: 6 },
+                        confirmPassword: { type: 'string', minLength: 6 },
+                        firstname: { type: 'string' },
+                        lastname: { type: 'string' },
+                        school: { type: 'string' },
+                        promo: { type: 'string' },
+                        telephone: { type: 'string' },
+                        isContacted: { type: 'boolean' }
                     }
                 }
             }
@@ -32,29 +30,27 @@ export class AuthController {
                     reply.status(400).send({ message: 'Invalid request body' });
                     return;
                 }
-                
+
                 const {
-                    Email,
-                    Password,
+                    email,
+                    password,
                     confirmPassword,
-                    FirstName,
-                    LastName,
-                    School,
-                    Promo,
+                    firstname,
+                    lastname,
+                    school,
+                    promo,
                     telephone,
                     isContacted
                 } = body;
-                
-                console.log("body", body)
 
                 const result = await AuthService.register({
-                    email: Email || '',
-                    password: Password || '',
+                    email: email || '',
+                    password: password || '',
                     confirmPassword: confirmPassword || '',
-                    FirstName: FirstName || '',
-                    LastName: LastName || '',
-                    School: School || '',
-                    Promo: Promo || '',
+                    firstname: firstname || '',
+                    lastname: lastname || '',
+                    school: school || '',
+                    promo: promo || '',
                     telephone: telephone || '',
                     isContacted: isContacted || false
                 })
@@ -74,22 +70,22 @@ export class AuthController {
             schema: {
                 body: {
                     type: 'object',
-                    required: ['Email', 'Password'],
+                    required: ['email', 'password'],
                     properties: {
-                        Email: { type: 'string', format: 'email' },
-                        Password: { type: 'string', minLength: 6 }
+                        email: { type: 'string', format: 'email' },
+                        password: { type: 'string', minLength: 6 }
                     }
                 }
             }
         }, async (request, reply) => {
             try {
-                const body = request.body as { Email: string; Password: string };
-                if (!body || !body.Email || !body.Password) {
+                const body = request.body as { email: string; password: string };
+                if (!body || !body.email || !body.password) {
                     reply.status(400).send({ message: 'Email and password are required' });
                     return;
                 }
 
-                const result = await AuthService.login(body.Email, body.Password)
+                const result = await AuthService.login(body.email, body.password)
                 if ((result as any).error) {
                     reply.status(401).send({ message: (result as any).error })
                     return
