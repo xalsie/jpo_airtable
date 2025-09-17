@@ -1,32 +1,46 @@
 <template>
-    <div v-if="project">
-        <h2>{{ project.title }}</h2>
-        <p>{{ project.description }}</p>
-        <div>
-            Tags: <span v-for="t in project.tags" :key="t">{{ t }} </span>
-        </div>
-        <div>Likes: {{ project.likes || 0 }}</div>
-        <button @click="like">J'aime</button>
+    <div v-if="project" class="container">
+        <ProjectCard
+            :key="project.id"
+            :project="project"
+            :showGoBack="true"
+            @liked="onLiked"
+            @disliked="onDisliked"
+        />
     </div>
-    <div v-else>Chargement...</div>
+
+    <div v-else class="container center">
+        <p>Chargement...</p>
+    </div>
 </template>
 
 <script>
 import MockApi from "../services/mockApi";
+import ProjectCard from "../components/ProjectCard.vue";
 import { ref, onMounted } from "vue";
+
 export default {
     props: ["id"],
+    components: { ProjectCard },
     setup(props) {
         const project = ref(null);
+
         const load = async () => {
             project.value = await MockApi.getProjectById(props.id);
         };
         onMounted(load);
-        const like = async () => {
-            await MockApi.likeProject(props.id);
+
+        const onLiked = async (id) => {
+            await MockApi.likeProject(id);
             await load();
         };
-        return { project, like };
+
+        const onDisliked = async (id) => {
+            await MockApi.dislikeProject(id);
+            await load();
+        };
+
+        return { project, onLiked, onDisliked };
     },
 };
 </script>

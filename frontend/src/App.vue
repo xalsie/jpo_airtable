@@ -63,6 +63,12 @@ main {
     gap: 50px;
 }
 
+.center {
+    margin-top: 72px;
+    align-items: center;
+    gap: 20px;
+}
+
 p,
 h1,
 h2,
@@ -134,12 +140,6 @@ nav {
 nav a {
     text-transform: uppercase;
     font-size: 14px;
-}
-
-.form-page {
-    margin-top: 72px;
-    align-items: center;
-    gap: 20px;
 }
 
 .form {

@@ -30,13 +30,23 @@
                     <span>{{ project.dislikes || 0 }}</span>
                 </div>
             </div>
+
+            <button v-if="showGoBack" class="primary go-back">
+                <router-link :to="'/'">Retour à l'accueil</router-link>
+            </button>
         </div>
     </article>
 </template>
 
 <script>
 export default {
-    props: { project: Object },
+    props: {
+        project: Object,
+        showGoBack: {
+            type: Boolean,
+            default: false,
+        },
+    },
     methods: {
         async like() {
             this.$emit("liked", this.project.id);
@@ -124,5 +134,9 @@ article {
     background-color: var(--dark-gray);
     border-radius: 9999px;
     cursor: pointer;
+}
+
+.go-back {
+    width: fit-content;
 }
 </style>
