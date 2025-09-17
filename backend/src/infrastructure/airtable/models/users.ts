@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { env } from '../../../config/env';
-import AirtableService from '../airtableService';
+import AirtableService from '../airtable.service';
 
 export class User {    
     private static UsersTable = 'tblPZ5goHdnAUoblK';
@@ -9,21 +9,29 @@ export class User {
         env.AIRTABLE_BASE_ID, this.UsersTable
     );
 
-    static UserSchema = z.object({
-        id: z.uuid(),
+    static Schema = z.object({
+        id: z.string(),
         lastname: z.string().min(1),
         firstname: z.string().min(1),
         avatar: z.string().optional().nullable(),
         school: z.string().min(1),
         promo: z.string().min(1),
-        email: z.email(),
-        telephone: z.string().min(1),
+        email: z.string().email(),
+        telephone: z.string().min(10).max(15),
         password: z.string().min(6),
-        isContacted: z.boolean().default(false)
+        isContacted: z.boolean().default(false),
+        comments: z.array(z.string()).optional().nullable(),
+        interactions: z.array(z.string()).optional().nullable(),
+        interactions_count: z.number().optional().nullable(),
+        activities_count: z.number().optional().nullable(),
+        created: z.string().optional().nullable(),
+        updated: z.string().optional().nullable(),
+        likes: z.number().optional().nullable(),
+        dislikes: z.number().optional().nullable(),
     });
 
     static FieldsIds: Record<
-        Exclude<keyof z.infer<typeof this.UserSchema>, 'id'>,
+        Exclude<keyof z.infer<typeof this.Schema>, 'id'>,
         string
     > = {
         lastname: 'fld7c1QwaRBHzWYb5',
@@ -34,7 +42,15 @@ export class User {
         email: 'fldHZXZ38VqgdYWfQ',
         telephone: 'fldVgiXxYxjZ2ttie',
         password: 'fld1u1FcalVzZnRpO',
-        isContacted: 'fldpkwd30OmpkqLW5'
+        isContacted: 'fldpkwd30OmpkqLW5',
+        comments: 'fldIRkIRxbfhniSvm',
+        interactions: 'fld5gFVSOpeLS76MI',
+        interactions_count: 'fldjdL7WwfwgQDywq',
+        activities_count: 'fldVJFLc3j5RQe6nY',
+        created: 'fldGZ0xGWzgx4bWiT',
+        updated: 'fldAGCCJ0WWnQG7Rf',
+        likes: 'fldX3uRXSbcQyr9Aa',
+        dislikes: 'fldl7vLnvEcVCuuXd'
     };
 
     static ViewIds = {
@@ -71,4 +87,4 @@ export class User {
     }
 }
 
-export type TUser = z.infer<typeof User.UserSchema>;
+export type TUser = z.infer<typeof User.Schema>;

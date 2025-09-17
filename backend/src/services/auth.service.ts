@@ -1,5 +1,4 @@
-import { TUser } from '../infrastructure/airtable/models/users';
-import { User } from '../infrastructure/airtable/models/users';
+import { User, TUser } from '../infrastructure/airtable/models';
 import { env } from '../config';
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
@@ -12,7 +11,7 @@ if (!JWT_SECRET) {
     throw new Error('JWT_SECRET environment variable is required')
 }
 
-const AuthService = {
+export const AuthService = {
     async login(email: string, password: string) {
         const user: any = await User.getAll({ fields: [User.FieldsIds.email, User.FieldsIds.password] }).then((users: any) => users.find((u: any) => u[User.FieldsIds.email] === email)) as (TUser | null)
 
