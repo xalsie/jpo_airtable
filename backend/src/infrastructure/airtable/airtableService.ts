@@ -3,6 +3,8 @@ import { env } from '../../config';
 import { Logger } from '../../utils';
 
 export class AirtableService {
+  private static _instance: Record<string, AirtableService> = {};
+
   private base: Airtable.Base;
   private tableName: string;
 
@@ -18,9 +20,20 @@ export class AirtableService {
     this.tableName = tableName;
   }
 
-  async getAll(): Promise<Array<{ [key: string]: any }>> {
+  static getInstance(baseId: string, tableName: string): AirtableService {
+    if (!this._instance[tableName]) {
+      this._instance[tableName] = new AirtableService(baseId, tableName);
+    }
+    return this._instance[tableName];
+  }
+
+  async getAll(params: { view?: string; fields?: string[] }): Promise<Array<{ [key: string]: any }>> {
     try {
-      const records = await this.base(this.tableName).select().all();
+      const records = await this.base(this.tableName).select({
+        ...(params.view ? { view: params.view } : {}),
+        ...(params.fields ? { fields: params.fields } : {}),
+        returnFieldsByFieldId: true
+      }).all();
       return records.map(record => ({
         id: record.id,
         ...record.fields

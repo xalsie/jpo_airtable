@@ -14,9 +14,9 @@ if (!JWT_SECRET) {
 
 const AuthService = {
     async login(email: string, password: string) {
-        const user = await User.getAll().then(users => users.find(u => u.email === email)) as (TUser | null)
+        const user: any = await User.getAll({ fields: [User.FieldsIds.email, User.FieldsIds.password] }).then((users: any) => users.find((u: any) => u[User.FieldsIds.email] === email)) as (TUser | null)
 
-        const hashToCompare = user ? user.password : DUMMY_HASH
+        const hashToCompare = user ? user[User.FieldsIds.password] : DUMMY_HASH
 
         const valid = await bcrypt.compare(password, hashToCompare)
 
@@ -54,11 +54,11 @@ const AuthService = {
         isContacted: boolean
     }) {
         try {
-            let existing = await User.getAll().then(users => users.find(u => u.email === email)) as (TUser | null) // TODO : use View in Airtable to filter only local users
+            let existingUsers = await User.getAll({ fields: [User.FieldsIds.email] }).then((users: any) => users.filter((u: any) => u[User.FieldsIds.email] === email))
 
             const hashed = await bcrypt.hash(password, 10)
 
-            if (existing) {
+            if (existingUsers.length > 0) {
                 return { error: 'Email already in use' }
             }
 
