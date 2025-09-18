@@ -1,7 +1,29 @@
+<script setup>
+import { defineProps, defineEmits } from "vue";
+
+const props = defineProps({
+    project: Object,
+    showGoBack: {
+        type: Boolean,
+        default: false,
+    },
+});
+
+const emit = defineEmits(["liked", "disliked"]);
+
+const like = async () => {
+    emit("liked", props.project.id);
+};
+
+const dislike = async () => {
+    emit("disliked", props.project.id);
+};
+</script>
+
 <template>
     <article>
         <div class="image-wrapper">
-            <img src="/assets/images/example.jpg" alt="Image d'exemple" />
+            <!-- <img src="/assets/images/example.jpg" alt="Image d'exemple" /> -->
         </div>
 
         <div class="content-wrapper">
@@ -37,27 +59,6 @@
         </div>
     </article>
 </template>
-
-<script>
-export default {
-    props: {
-        project: Object,
-        showGoBack: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    methods: {
-        async like() {
-            this.$emit("liked", this.project.id);
-        },
-
-        async dislike() {
-            this.$emit("disliked", this.project.id);
-        },
-    },
-};
-</script>
 
 <style scoped>
 article {
