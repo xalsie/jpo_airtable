@@ -1,3 +1,32 @@
+<script setup>
+import { ref, onMounted } from "vue";
+import MockApi from "../services/mockApi";
+import ProjectCard from "../components/ProjectCard.vue";
+
+const projects = ref([]);
+const q = ref("");
+
+const load = async () => {
+    projects.value = await MockApi.getProjects();
+};
+onMounted(load);
+
+const search = async () => {
+    projects.value = await MockApi.searchProjects(q.value);
+};
+const loadAll = load;
+
+const onLiked = async (id) => {
+    await MockApi.likeProject(id);
+    await load();
+};
+
+const onDisliked = async (id) => {
+    await MockApi.dislikeProject(id);
+    await load();
+};
+</script>
+
 <template>
     <div class="container">
         <div class="search">
@@ -23,42 +52,6 @@
         </div>
     </div>
 </template>
-
-<script>
-import MockApi from "../services/mockApi";
-import ProjectCard from "../components/ProjectCard.vue";
-import { ref, onMounted } from "vue";
-
-export default {
-    components: { ProjectCard },
-    setup() {
-        const projects = ref([]);
-        const q = ref("");
-
-        const load = async () => {
-            projects.value = await MockApi.getProjects();
-        };
-        onMounted(load);
-
-        const search = async () => {
-            projects.value = await MockApi.searchProjects(q.value);
-        };
-        const loadAll = load;
-
-        const onLiked = async (id) => {
-            await MockApi.likeProject(id);
-            await load();
-        };
-
-        const onDisliked = async (id) => {
-            await MockApi.dislikeProject(id);
-            await load();
-        };
-
-        return { projects, q, search, loadAll, onLiked, onDisliked };
-    },
-};
-</script>
 
 <style>
 .search {

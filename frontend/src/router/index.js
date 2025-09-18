@@ -1,10 +1,11 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { useUserStore } from "../store/useUser";
+
 import Home from "../views/Home.vue";
 import ProjectDetail from "../views/ProjectDetail.vue";
 import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
 import Profile from "../views/Profile.vue";
-import { useUserStore } from "../store/useUser";
 
 const routes = [
     {
@@ -34,6 +35,10 @@ const routes = [
         component: Profile,
         meta: { requiresAuth: true },
     },
+    {
+        path: '/:pathMatch(.*)*',
+        redirect: "/"
+    },
 ];
 
 const router = createRouter({
@@ -43,7 +48,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     const userStore = useUserStore();
-    if (to.meta.requiresAuth && !userStore.user) {
+    if (to.meta.requiresAuth && !userStore.isAuthenticated) {
         next({ name: "Login", query: { redirect: to.fullPath } });
     } else {
         next();

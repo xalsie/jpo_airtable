@@ -1,32 +1,18 @@
+<script setup>
+import { RouterView } from "vue-router";
+
+import NavBar from "./components/NavBar.vue";
+</script>
+
 <template>
     <div id="root">
-        <nav v-if="isLogged">
-            <router-link to="/profile">Modifier mon profil</router-link>
-        </nav>
-
-        <nav v-else>
-            <router-link to="/login">Connexion</router-link>
-            <router-link to="/register">Inscription</router-link>
-        </nav>
+        <NavBar />
 
         <main>
-            <router-view />
+            <RouterView />
         </main>
     </div>
 </template>
-
-<script>
-import { useUserStore } from "./store/useUser";
-import { computed } from "vue";
-
-export default {
-    setup() {
-        const userStore = useUserStore();
-        const isLogged = computed(() => !!userStore.user);
-        return { isLogged };
-    },
-};
-</script>
 
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
