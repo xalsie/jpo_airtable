@@ -9,11 +9,10 @@ export class AuthController {
             schema: {
                 body: {
                     type: 'object',
-                    required: ['email', 'password', 'confirmPassword', 'firstname', 'lastname', 'school', 'promo', 'telephone'],
+                    required: ['email', 'password', 'firstname', 'lastname', 'school', 'promo', 'telephone'],
                     properties: {
                         email: { type: 'string', format: 'email' },
                         password: { type: 'string', minLength: 6 },
-                        confirmPassword: { type: 'string', minLength: 6 },
                         firstname: { type: 'string' },
                         lastname: { type: 'string' },
                         school: { type: 'string' },
@@ -25,7 +24,7 @@ export class AuthController {
             }
         }, async (request, reply) => {
             try {
-                const body = request.body as (Partial<TUser> & { confirmPassword: string });
+                const body = request.body as (Partial<TUser>);
                 if (!body) {
                     reply.status(400).send({ message: 'Invalid request body' });
                     return;
@@ -34,7 +33,6 @@ export class AuthController {
                 const {
                     email,
                     password,
-                    confirmPassword,
                     firstname,
                     lastname,
                     school,
@@ -46,7 +44,6 @@ export class AuthController {
                 const result = await AuthService.register({
                     email: email || '',
                     password: password || '',
-                    confirmPassword: confirmPassword || '',
                     firstname: firstname || '',
                     lastname: lastname || '',
                     school: school || '',

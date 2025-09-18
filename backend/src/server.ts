@@ -5,7 +5,8 @@ import { env, EnvSchema } from "./config/env";
 import {
     AuthController,
     ProjectController,
-    InteractionController
+    InteractionController,
+    UserController
 } from "./controllers";
 
 const [envValid, envErrors] = (() => {
@@ -35,7 +36,8 @@ startServer().then(async ({ server }) => {
         const controllers: any[] = [
             AuthController,
             ProjectController,
-            InteractionController
+            InteractionController,
+            UserController
         ];
 
         for (const Controller of controllers) {

@@ -20,6 +20,7 @@ export const configureFastify = async (app: FastifyInstance) => {
                 cb(new Error('Request from unauthorized origin'));
             }
         },
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     });
 
     // Register compression plugin (wrap in try/catch to log potential plugin errors)

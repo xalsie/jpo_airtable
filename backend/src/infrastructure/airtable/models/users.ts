@@ -16,7 +16,7 @@ export class User {
         avatar: z.string().optional().nullable(),
         school: z.string().min(1),
         promo: z.string().min(1),
-        email: z.string().email(),
+        email: z.email(),
         telephone: z.string().min(10).max(15),
         password: z.string().min(6),
         isContacted: z.boolean().default(false),

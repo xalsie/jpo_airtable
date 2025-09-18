@@ -13,7 +13,7 @@ if (!JWT_SECRET) {
 
 export const AuthService = {
     async login(email: string, password: string) {
-        const user: any = await User.getAll({ fields: [User.FieldsIds.email, User.FieldsIds.password] }).then((users: any) => users.find((u: any) => u[User.FieldsIds.email] === email)) as (TUser | null)
+        const user: any = await User.getAll({  }).then((users: any) => users.find((u: any) => u[User.FieldsIds.email] === email)) as (TUser | null)
 
         const hashToCompare = user ? user[User.FieldsIds.password] : DUMMY_HASH
 
@@ -28,13 +28,25 @@ export const AuthService = {
             role: 'role_user'
         }, JWT_SECRET, { expiresIn: env.JWT_EXPIRATION });
 
-        return { token, user: { id: user.id, email: user.email } }
+        return {
+            token,
+            user: {
+                id: user.id,
+                email: user[User.FieldsIds.email],
+                firstname: user[User.FieldsIds.firstname],
+                lastname: user[User.FieldsIds.lastname],
+                avatar: user[User.FieldsIds.avatar],
+                school: user[User.FieldsIds.school],
+                promo: user[User.FieldsIds.promo],
+                telephone: user[User.FieldsIds.telephone],
+                isContacted: user[User.FieldsIds.isContacted]
+            }
+        }
     },
 
     async register({
         email,
         password,
-        confirmPassword,
         firstname,
         lastname,
         school,
@@ -44,7 +56,6 @@ export const AuthService = {
     }: {
         email: string,
         password: string,
-        confirmPassword: string,
         firstname: string,
         lastname: string,
         school: string,
@@ -53,16 +64,12 @@ export const AuthService = {
         isContacted: boolean
     }) {
         try {
-            let existingUsers = await User.getAll({ fields: [User.FieldsIds.email] }).then((users: any) => users.filter((u: any) => u[User.FieldsIds.email] === email))
+            let existingUsers = await User.getAll({  }).then((users: any) => users.filter((u: any) => u[User.FieldsIds.email] === email))
 
             const hashed = await bcrypt.hash(password, 10)
 
             if (existingUsers.length > 0) {
                 return { error: 'Email already in use' }
-            }
-
-            if (password !== confirmPassword) {
-                return { error: 'Passwords do not match' }
             }
 
             const user = await User.create({
@@ -79,7 +86,20 @@ export const AuthService = {
 
             const token = jwt.sign({ userId: user.id, role: 'role_user' }, JWT_SECRET, { expiresIn: env.JWT_EXPIRATION })
 
-            return { token, user: { id: user.id, email: user.email } }
+            return {
+                token,
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    firstname: user.firstname,
+                    lastname: user.lastname,
+                    avatar: user.avatar,
+                    school: user.school,
+                    promo: user.promo,
+                    telephone: user.telephone,
+                    isContacted: user.isContacted
+                }
+            }
         } catch (error) {
             Logger.error('AuthService', 'Error in register:', error)
             throw error
