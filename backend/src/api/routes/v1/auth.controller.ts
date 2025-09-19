@@ -1,7 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { z } from 'zod';
 
-// import { AuthService } from '../../../services/auth.service';
 import Logger from '../../../utils/logger';
 import { TUser } from '../../../infrastructure/airtable/models/users';
 

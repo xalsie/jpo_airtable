@@ -4,7 +4,6 @@ import { FastifyApi } from "./api/index";
 import { AuthService, InteractionService, ProjectService, UserService } from "./services";
 
 (async () => {
-    // instantiate services (add more as needed)
     const authService = new AuthService();
     const interactionService = new InteractionService();
     const projectService = new ProjectService();
