@@ -18,8 +18,13 @@ const isContacted = ref(false);
 const message = ref("");
 const messageColor = ref("red");
 
+const loading = ref(false);
+
 const submit = async () => {
+    if (loading.value) return;
+
     message.value = "";
+    loading.value = true;
     const errors = [];
 
     if (!firstname.value || !lastname.value || !school.value || !promo.value) {
@@ -42,12 +47,10 @@ const submit = async () => {
             "Le numéro de téléphone doit contenir au moins 8 chiffres."
         );
     }
-
     if (errors.length) {
         message.value = errors.join(" ");
         return;
     }
-
     if (telephone.value.startsWith("0")) {
         telephone.value = "+33" + telephone.value.slice(1);
     } else if (!telephone.value.startsWith("+33")) {
@@ -71,6 +74,7 @@ const submit = async () => {
     } else {
         message.value = res.message || "Erreur";
         messageColor.value = "red";
+        loading.value = false;
     }
 };
 
@@ -83,88 +87,73 @@ onMounted(() => {
 
 <template>
     <div class="container space center">
-        <div class="card">
-            <h2 class="title">Créer un compte</h2>
-            <form class="form" @submit.prevent="submit">
-                <div class="form-elements">
-                    <div class="form-row">
-                        <input
-                            v-model="firstname"
-                            placeholder="Prénom"
-                            required
-                        />
-                        <input v-model="lastname" placeholder="Nom" required />
-                    </div>
-                    <div class="form-row column">
-                        <input
-                            v-model="email"
-                            type="email"
-                            placeholder="Email"
-                            required
-                        />
-                    </div>
-                    <div class="form-row">
-                        <input
-                            v-model="password"
-                            type="password"
-                            placeholder="Mot de passe"
-                            required
-                            minlength="6"
-                        />
-                        <input
-                            v-model="confirmPassword"
-                            type="password"
-                            placeholder="Confirmer le mot de passe"
-                            required
-                            minlength="6"
-                        />
-                    </div>
-                    <div class="form-row">
-                        <input v-model="school" placeholder="École" required />
-                        <input v-model="promo" placeholder="Promo" required />
-                    </div>
-                    <div class="form-row column">
-                        <input
-                            v-model="telephone"
-                            placeholder="Téléphone"
-                            required
-                        />
-                    </div>
-                    <div class="form-row">
-                        <label>
-                            <input type="checkbox" v-model="isContacted" />
-                            Je souhaite être contacté(e) pour plus
-                            d'informations
-                        </label>
-                    </div>
+        <h2 class="title">Créer un compte</h2>
+        <form class="form" @submit.prevent="submit">
+            <div class="form-elements">
+                <div class="form-row">
+                    <input v-model="lastname" placeholder="Nom" required />
+                    <input v-model="firstname" placeholder="Prénom" required />
                 </div>
+                <div class="form-row">
+                    <input
+                        v-model="email"
+                        type="email"
+                        placeholder="Email"
+                        required
+                    />
+                    <input
+                        v-model="telephone"
+                        placeholder="Téléphone"
+                        required
+                    />
+                </div>
+                <div class="form-column">
+                    <input
+                        v-model="password"
+                        type="password"
+                        placeholder="Mot de passe"
+                        required
+                        minlength="6"
+                    />
+                </div>
+                <div class="form-column">
+                    <input
+                        v-model="confirmPassword"
+                        type="password"
+                        placeholder="Confirmer le mot de passe"
+                        required
+                        minlength="6"
+                    />
+                </div>
+                <div class="form-row">
+                    <input v-model="school" placeholder="École" required />
+                    <input v-model="promo" placeholder="Promo" required />
+                </div>
+                <div class="form-column">
+                    <label>
+                        <input type="checkbox" v-model="isContacted" />
+                        Je souhaite être recontacté(e)
+                    </label>
+                </div>
+            </div>
 
-                <div class="form-elements">
-                    <button type="submit" class="primary">S'inscrire</button>
-                    <button type="button" class="secondary">
-                        <router-link :to="'/'">Retour</router-link>
-                    </button>
-                </div>
+            <div class="form-buttons">
+                <button type="submit" class="primary">
+                    <span v-if="loading">Inscription...</span>
+                    <span v-else>S'inscrire</span>
+                </button>
+                <button type="button" class="secondary">
+                    <router-link :to="'/'">Retour</router-link>
+                </button>
+            </div>
 
-                <div
-                    v-if="message"
-                    :style="{ color: messageColor }"
-                    class="message"
-                >
-                    {{ message }}
-                </div>
-            </form>
-        </div>
+            <div
+                v-if="message"
+                :style="{ color: messageColor }"
+                class="message"
+            >
+                {{ message }}
+            </div>
+        </form>
     </div>
 </template>
-
-<style scoped>
-.form-row {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-.form-row.column {
-    flex-direction: column;
-}
-</style>

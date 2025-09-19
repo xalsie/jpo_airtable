@@ -1,116 +1,73 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
+import UserService from "../services/userService";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
-export const useUserStore = defineStore("user", () => {
-    const token = ref(null);
-    const data = ref(null);
-    const isAuthenticated = ref(false);
+export const useUserStore = defineStore(
+    "user",
+    () => {
+        const token = ref(null);
+        const data = ref(null);
+        const isAuthenticated = ref(false);
 
-    async function register(payload) {
-        try {
-            const body = {
-                email: payload.email,
-                password: payload.password,
-                firstname: payload.firstname,
-                lastname: payload.lastname,
-                school: payload.school || "",
-                promo: payload.promo || "",
-                telephone: payload.telephone || "",
-                isContacted: payload.isContacted || false
-            };
-            const response = await fetch(`${API_URL}/api/auth/register`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(body),
-            });
-            const result = await response.json();
-            if (response.ok && result) {
-                data.value = result.user || result;
-                token.value = result.token || null;
+        async function register(payload) {
+            const result = await UserService.register(payload);
+            if (result.success) {
+                data.value = result.user;
+                token.value = result.token;
                 isAuthenticated.value = true;
-                return { success: true, user: data.value, token: token.value };
-            } else {
-                return { success: false, message: result.message || "Erreur d'inscription" };
             }
-        } catch (e) {
-            return { success: false, message: "Erreur réseau" };
+            return result;
         }
-    }
 
-    async function login(payload) {
-        try {
-            const response = await fetch(`${API_URL}/api/auth/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload),
-            });
-            const result = await response.json();
-            if (response.ok && result) {
-                data.value = result.user || result;
-                token.value = result.token || null;
+        async function login(payload) {
+            const result = await UserService.login(payload);
+            if (result.success) {
+                data.value = result.user;
+                token.value = result.token;
                 isAuthenticated.value = true;
-                return { success: true, user: data.value, token: token.value };
-            } else {
-                return { success: false, message: result.message || "Erreur de connexion" };
             }
-        } catch (e) {
-            return { success: false, message: "Erreur réseau" };
+            return result;
         }
-    }
 
-    function logout() {
-        data.value = null;
-        token.value = null;
-        isAuthenticated.value = false;
-    }
-
-    async function updateProfile(payload) {
-        if (!token.value) {
-            return { success: false, message: "Non authentifié" };
+        function logout() {
+            data.value = null;
+            token.value = null;
+            isAuthenticated.value = false;
         }
-        try {
-            const response = await fetch(`${API_URL}/api/user/me`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token.value}`
-                },
-                body: JSON.stringify(payload),
-            });
-            const result = await response.json();
-            if (response.ok && result) {
-                data.value = { ...data.value, ...result };
-                return { success: true, user: data.value };
-            } else {
-                return { success: false, message: result.message || "Erreur lors de la mise à jour" };
+
+        async function updateProfile(payload) {
+            const result = await UserService.updateProfile(
+                payload,
+                token.value
+            );
+            if (result.success) {
+                data.value = { ...data.value, ...result.user };
             }
-        } catch (e) {
-            return { success: false, message: "Erreur réseau" };
+            return result;
         }
-    }
 
-    async function deleteAccount() {
-        // À implémenter
-    }
+        async function deleteAccount() {
+            const result = await UserService.deleteAccount(token.value);
+            if (result.success) {
+                logout();
+            }
+            return result;
+        }
 
-    return {
-        token,
-        data,
-        isAuthenticated,
-        register,
-        login,
-        logout,
-        updateProfile,
-        deleteAccount
-    };
-},
-{    persist: true,
-})
+        return {
+            token,
+            data,
+            isAuthenticated,
+            register,
+            login,
+            logout,
+            updateProfile,
+            deleteAccount,
+        };
+    },
+    { persist: true }
+);
 
 export default useUserStore;

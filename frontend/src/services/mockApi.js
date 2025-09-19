@@ -47,7 +47,7 @@ function ensureProjects() {
         write(STORAGE_KEYS.PROJECTS, seed);
     }
 }
-ensureProjects();
+// ensureProjects();
 
 const MockApi = {
     async registerUser({ name, email, password }) {
