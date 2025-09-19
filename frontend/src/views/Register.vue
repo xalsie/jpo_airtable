@@ -37,8 +37,10 @@ const submit = async () => {
     if (!/^(?:\+33|0)\d{9}$/.test(telephone.value)) {
         errors.push("Le numéro de téléphone n'est pas valide.");
     }
-    if (telephone.value.replace(/\D/g, '').length < 8) {
-        errors.push("Le numéro de téléphone doit contenir au moins 8 chiffres.");
+    if (telephone.value.replace(/\D/g, "").length < 8) {
+        errors.push(
+            "Le numéro de téléphone doit contenir au moins 8 chiffres."
+        );
     }
 
     if (errors.length) {
@@ -46,7 +48,6 @@ const submit = async () => {
         return;
     }
 
-    // Normalisation du numéro de téléphone
     if (telephone.value.startsWith("0")) {
         telephone.value = "+33" + telephone.value.slice(1);
     } else if (!telephone.value.startsWith("+33")) {
@@ -61,7 +62,7 @@ const submit = async () => {
         school: school.value,
         promo: promo.value,
         telephone: telephone.value,
-        isContacted: isContacted.value || false
+        isContacted: isContacted.value || false,
     });
     if (res.success) {
         message.value = "Inscription réussie";
@@ -81,33 +82,59 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="container center">
+    <div class="container space center">
         <div class="card">
             <h2 class="title">Créer un compte</h2>
             <form class="form" @submit.prevent="submit">
                 <div class="form-elements">
                     <div class="form-row">
-                        <input v-model="firstname" placeholder="Prénom" required />
+                        <input
+                            v-model="firstname"
+                            placeholder="Prénom"
+                            required
+                        />
                         <input v-model="lastname" placeholder="Nom" required />
                     </div>
                     <div class="form-row column">
-                        <input v-model="email" type="email" placeholder="Email" required />
+                        <input
+                            v-model="email"
+                            type="email"
+                            placeholder="Email"
+                            required
+                        />
                     </div>
                     <div class="form-row">
-                        <input v-model="password" type="password" placeholder="Mot de passe" required minlength="6" />
-                        <input v-model="confirmPassword" type="password" placeholder="Confirmer le mot de passe" required minlength="6" />
+                        <input
+                            v-model="password"
+                            type="password"
+                            placeholder="Mot de passe"
+                            required
+                            minlength="6"
+                        />
+                        <input
+                            v-model="confirmPassword"
+                            type="password"
+                            placeholder="Confirmer le mot de passe"
+                            required
+                            minlength="6"
+                        />
                     </div>
                     <div class="form-row">
                         <input v-model="school" placeholder="École" required />
                         <input v-model="promo" placeholder="Promo" required />
                     </div>
                     <div class="form-row column">
-                        <input v-model="telephone" placeholder="Téléphone" required />
+                        <input
+                            v-model="telephone"
+                            placeholder="Téléphone"
+                            required
+                        />
                     </div>
                     <div class="form-row">
                         <label>
                             <input type="checkbox" v-model="isContacted" />
-                            Je souhaite être contacté(e) pour plus d'informations
+                            Je souhaite être contacté(e) pour plus
+                            d'informations
                         </label>
                     </div>
                 </div>
@@ -119,7 +146,11 @@ onMounted(() => {
                     </button>
                 </div>
 
-                <div v-if="message" :style="{ color: messageColor }" class="message">
+                <div
+                    v-if="message"
+                    :style="{ color: messageColor }"
+                    class="message"
+                >
                     {{ message }}
                 </div>
             </form>
