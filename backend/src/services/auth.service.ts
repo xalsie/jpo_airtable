@@ -90,14 +90,13 @@ export const AuthService = {
                 token,
                 user: {
                     id: user.id,
-                    email: user.email,
-                    firstname: user.firstname,
-                    lastname: user.lastname,
-                    avatar: user.avatar,
-                    school: user.school,
-                    promo: user.promo,
-                    telephone: user.telephone,
-                    isContacted: user.isContacted
+                    email,
+                    firstname,
+                    lastname,
+                    school,
+                    promo,
+                    telephone,
+                    isContacted
                 }
             }
         } catch (error) {

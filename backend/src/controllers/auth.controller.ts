@@ -83,9 +83,9 @@ export class AuthController {
                 }
 
                 const result = await AuthService.login(body.email, body.password)
-                if ((result as any).error) {
-                    reply.status(401).send({ message: (result as any).error })
-                    return
+                if (!result) {
+                    reply.status(401).send({ message: 'Invalid email or password' });
+                    return;
                 }
 
                 reply.send(result)
