@@ -1,28 +1,34 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import MockApi from "../services/mockApi";
+import { useProjectStore } from "../store/useProject";
 import ProjectCard from "../components/ProjectCard.vue";
+
+const projectStore = useProjectStore();
 
 const projects = ref([]);
 const q = ref("");
 
 const load = async () => {
-    projects.value = await MockApi.getProjects();
+    projects.value = await projectStore.getProjects();
 };
 onMounted(load);
 
 const search = async () => {
-    projects.value = await MockApi.searchProjects(q.value);
+    // TODO: Add endpoint in back-end.
+    // projects.value = await projectStore.searchProjects(q.value);
+    projects.value = await projectStore.getProjects();
 };
 const loadAll = load;
 
 const onLiked = async (id) => {
-    await MockApi.likeProject(id);
+    // TODO: Add endpoint in back-end.
+    // await projectStore.likeProject(id);
     await load();
 };
 
 const onDisliked = async (id) => {
-    await MockApi.dislikeProject(id);
+    // TODO: Add endpoint in back-end.
+    // await projectStore.dislikeProject(id);
     await load();
 };
 </script>

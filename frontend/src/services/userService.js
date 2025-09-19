@@ -1,3 +1,5 @@
+import { apiRequest } from "./apiRequest";
+
 // Global
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -9,30 +11,6 @@ const PROFILE_PREFIX = `${API_URL}/api/user`;
 const REGISTER_URL = `${AUTH_PREFIX}/register`;
 const LOGIN_URL = `${AUTH_PREFIX}/login`;
 const PROFILE_URL = `${PROFILE_PREFIX}/me`;
-
-async function request(url, options = {}) {
-    try {
-        const response = await fetch(url, options);
-        const result = await response.json().catch(() => null);
-
-        if (response.ok) {
-            return {
-                success: true,
-                status: response.status,
-                data: result,
-            };
-        } else {
-            return {
-                success: false,
-                status: response.status,
-                message: result?.message || "Erreur serveur",
-                data: result,
-            };
-        }
-    } catch (e) {
-        return { success: false, message: "Erreur réseau" };
-    }
-}
 
 export const UserService = {
     API_URL,
@@ -51,7 +29,7 @@ export const UserService = {
             telephone: payload.telephone || "",
             isContacted: payload.isContacted || false,
         };
-        const res = await request(REGISTER_URL, {
+        const res = await apiRequest(REGISTER_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
@@ -69,7 +47,7 @@ export const UserService = {
     },
 
     async login(payload) {
-        const res = await request(LOGIN_URL, {
+        const res = await apiRequest(LOGIN_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
@@ -90,7 +68,7 @@ export const UserService = {
         if (!token) {
             return { success: false, message: "Non authentifié" };
         }
-        const res = await request(PROFILE_URL, {
+        const res = await apiRequest(PROFILE_URL, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -113,7 +91,7 @@ export const UserService = {
         if (!token) {
             return { success: false, message: "Non authentifié" };
         }
-        const res = await request(PROFILE_URL, {
+        const res = await apiRequest(PROFILE_URL, {
             method: "DELETE",
             headers: {
                 Authorization: `Bearer ${token}`,
