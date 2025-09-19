@@ -61,8 +61,28 @@ const onDisliked = async (id) => {
 }
 
 .projects {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    align-items: start;
+    margin-top: 16px;
+}
+
+.projects > * {
+    height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+}
+
+@media (max-width: 1024px) {
+    .projects {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .projects {
+        grid-template-columns: 1fr;
+    }
 }
 </style>
