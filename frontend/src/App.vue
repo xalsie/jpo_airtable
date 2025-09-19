@@ -50,9 +50,12 @@ main {
 }
 
 .center {
-    margin-top: 72px;
     align-items: center;
     gap: 20px;
+}
+
+.space {
+    margin-top: 72px;
 }
 
 p,
@@ -72,16 +75,13 @@ a {
 
 input {
     padding: 6px 12px;
-    border: 1px solid var(--white);
+    border: 1px solid var(--dark-gray);
     border-radius: 6px;
     outline: none;
-    transition: border 0.2s ease-in-out;
 }
 
 input:focus {
     outline: none;
-    border: 1px solid var(--dark-gray);
-    transition: border 0.1s ease;
 }
 
 button {

@@ -2,7 +2,10 @@
 import { defineProps, defineEmits } from "vue";
 
 const props = defineProps({
-    project: Object,
+    project: {
+        type: Object,
+        required: true,
+    },
     showGoBack: {
         type: Boolean,
         default: false,
@@ -21,56 +24,75 @@ const dislike = async () => {
 </script>
 
 <template>
-    <article>
+    <article class="card">
         <div class="image-wrapper">
-            <!-- <img src="/assets/images/example.jpg" alt="Image d'exemple" /> -->
+            <img
+                :src="project.image || '/assets/images/example.jpg'"
+                :alt="project.title || 'Image du projet'"
+            />
         </div>
 
         <div class="content-wrapper">
             <div class="tags">
-                <span v-for="t in project.tags" :key="t" class="tag"
-                    >{{ t }}
+                <span v-for="t in project.tags" :key="t" class="tag">
+                    {{ t }}
                 </span>
             </div>
 
-            <h1 class="title">
+            <h2 class="title">
                 <router-link :to="'/project/' + project.id">
                     {{ project.title }}
                 </router-link>
-            </h1>
+            </h2>
 
-            <p class="description">{{ project.description }}</p>
+            <div class="footer">
+                <div class="actions">
+                    <div class="action">
+                        <i
+                            @click="like"
+                            class="pi pi-thumbs-up-fill like"
+                            aria-hidden="true"
+                        ></i>
+                        <span class="count">{{ project.likes || 0 }}</span>
+                    </div>
 
-            <div class="actions">
-                <div class="action">
-                    <i @click="like" class="pi pi-thumbs-up-fill"></i>
-                    <span>{{ project.likes || 0 }}</span>
+                    <div class="action">
+                        <i
+                            @click="dislike"
+                            class="pi pi-thumbs-down-fill dislike"
+                            aria-hidden="true"
+                        ></i>
+                        <span class="count">{{ project.dislikes || 0 }}</span>
+                    </div>
                 </div>
 
-                <div class="action">
-                    <i @click="dislike" class="pi pi-thumbs-down-fill"></i>
-                    <span>{{ project.dislikes || 0 }}</span>
-                </div>
+                <button v-if="showGoBack" class="primary go-back">
+                    <router-link :to="'/'" class="go-back-link">
+                        Retour
+                    </router-link>
+                </button>
             </div>
-
-            <button v-if="showGoBack" class="primary go-back">
-                <router-link :to="'/'">Retour à l'accueil</router-link>
-            </button>
         </div>
     </article>
 </template>
 
 <style scoped>
-article {
+.card {
     display: flex;
-    height: 400px;
+    flex-direction: column;
+    width: 100%;
+    background: var(--card-bg, #fff);
+    border-radius: 12px;
     overflow: hidden;
-    align-items: stretch;
+    box-shadow: 0 6px 18px rgba(28, 40, 50, 0.06);
+    height: 100%;
 }
 
 .image-wrapper {
-    flex: 0 0 50%;
-    height: 100%;
+    width: 100%;
+    height: 240px;
+    overflow: hidden;
+    background: #f2f2f2;
 }
 
 .image-wrapper img {
@@ -78,48 +100,66 @@ article {
     height: 100%;
     display: block;
     object-fit: cover;
-    border-radius: 12px;
     object-position: center;
 }
 
 .content-wrapper {
-    flex: 0 0 50%;
-    padding: 16px 24px;
+    padding: 12px 20px;
     box-sizing: border-box;
-    overflow: auto;
-
     display: flex;
     flex-direction: column;
-    gap: 20px;
-}
-
-.title {
-    font-family: "Fraunces";
-}
-
-.description {
-    font-size: 14px;
-    line-height: 1.6;
-    text-align: justify;
+    gap: 10px;
 }
 
 .tags {
     display: flex;
-    gap: 20px;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .tag {
-    padding: 6px 10px;
-    font-size: 12px;
+    padding: 4px 8px;
+    font-size: 11px;
     text-transform: uppercase;
-    border: 1px solid var(--dark-gray);
+    border: 1px solid var(--dark-gray, #d2d2d2);
     border-radius: 6px;
+    background: var(--tag-bg, transparent);
+    color: var(--text, #111);
+    line-height: 1;
+}
+
+.title {
+    display: flex;
+    font-family: "Fraunces", serif;
+    font-size: 20px;
+    line-height: 1.2;
+}
+
+.title a {
+    width: 100%;
+    color: inherit;
+    text-decoration: none;
+}
+
+.description {
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--muted, #55606a);
+    margin: 0;
+    text-align: justify;
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
 }
 
 .actions {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 12px;
 }
 
 .action {
@@ -129,15 +169,61 @@ article {
 }
 
 .action i {
-    padding: 8px;
-    font-size: 14px;
-    color: var(--white);
-    background-color: var(--dark-gray);
+    padding: 6px;
+    font-size: 13px;
+    color: var(--white, #fff);
+    background-color: var(--dark-gray, #30343a);
     border-radius: 9999px;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.action i.like:hover {
+    background-color: green;
+}
+
+.action i.dislike:hover {
+    background-color: red;
+}
+
+.count {
+    font-size: 12px;
 }
 
 .go-back {
-    width: fit-content;
+    background: transparent;
+    border: none;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.go-back-link {
+    color: var(--primary, #0b69ff);
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.go-back:focus,
+.go-back:active {
+    outline: none;
+}
+
+@media (max-width: 640px) {
+    .image-wrapper {
+        height: 220px;
+    }
+
+    .title {
+        font-size: 15px;
+    }
+
+    .tag {
+        font-size: 10px;
+        padding: 3px 6px;
+    }
 }
 </style>
