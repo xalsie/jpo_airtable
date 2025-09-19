@@ -26,6 +26,10 @@ import NavBar from "./components/NavBar.vue";
     --black: #000000;
 }
 
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: "Inter";
     font-optical-sizing: auto;
@@ -129,6 +133,7 @@ nav a {
 }
 
 .form {
+    width: 400px;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -137,14 +142,46 @@ nav a {
 .form-elements {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 20px;
+}
+
+.form-row {
+    display: flex;
+    gap: 10px;
+}
+
+.form.column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-inline {
+    display: inline;
 }
 
 .form input {
+    width: 100%;
     border: 1px solid var(--gray);
 }
 
 .form input:focus {
     border: 1px solid var(--dark-gray);
+}
+
+.form label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form label input {
+    width: inherit;
+}
+
+.form-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 </style>

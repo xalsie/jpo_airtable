@@ -19,6 +19,7 @@ const submit = async () => {
 
     message.value = "";
     loading.value = true;
+
     const res = await userStore.login({
         email: email.value,
         password: password.value,
@@ -30,6 +31,7 @@ const submit = async () => {
     } else {
         message.value = res.message || "Erreur";
         messageColor.value = "red";
+        loading.value = false;
     }
 };
 
@@ -45,22 +47,26 @@ onMounted(() => {
         <h2>Connexion</h2>
         <form class="form" @submit.prevent="submit">
             <div class="form-elements">
-                <input
-                    v-model="email"
-                    type="email"
-                    placeholder="Email"
-                    required
-                />
-                <input
-                    v-model="password"
-                    type="password"
-                    placeholder="Mot de passe"
-                    required
-                    minlength="6"
-                />
+                <div class="form-column">
+                    <input
+                        v-model="email"
+                        type="email"
+                        placeholder="Email"
+                        required
+                    />
+                </div>
+                <div class="form-column">
+                    <input
+                        v-model="password"
+                        type="password"
+                        placeholder="Mot de passe"
+                        required
+                        minlength="6"
+                    />
+                </div>
             </div>
 
-            <div class="form-elements">
+            <div class="form-buttons">
                 <button type="submit" class="primary" :disabled="loading">
                     <span v-if="loading">Connexion...</span>
                     <span v-else>Se connecter</span>
@@ -70,6 +76,9 @@ onMounted(() => {
                 </button>
             </div>
         </form>
-        <div v-if="message" :style="{ color: messageColor }">{{ message }}</div>
+
+        <div v-if="message" :style="{ color: messageColor }" class="message">
+            {{ message }}
+        </div>
     </div>
 </template>

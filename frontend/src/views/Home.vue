@@ -39,7 +39,7 @@ const onDisliked = async (id) => {
             </button>
         </div>
 
-        <div v-if="projects.length === 0">Aucun projet.</div>
+        <div v-if="projects.length === 0">Aucun projet enregistré.</div>
 
         <div class="projects">
             <ProjectCard
