@@ -1,7 +1,15 @@
 import { Interactions, TInteractions } from '../infrastructure/airtable/models';
 import Logger from '../utils/logger'
 
-export const InteractionService = {
+export type IInteraction = {
+    getAll: (params: {
+        limit: number,
+        offset: number
+    }) => Promise<TInteractions[]>;
+    getById: (id: string) => Promise<TInteractions | null>;
+}
+
+export class InteractionService implements IInteraction {
     async getAll(params: { limit?: number; offset?: number } = {}): Promise<TInteractions[]> {
         try {
             const interactions = await Interactions.getAll({ fields: Object.values(Interactions.FieldsIds), ...params });
@@ -10,7 +18,7 @@ export const InteractionService = {
             Logger.error('InteractionService', 'Error fetching interactions:', error);
             throw new Error('Failed to fetch interactions');
         }
-    },
+    }
 
     async getById(id: string): Promise<TInteractions | null> {
         try {

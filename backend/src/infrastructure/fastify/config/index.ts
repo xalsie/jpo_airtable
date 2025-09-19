@@ -1,15 +1,15 @@
+import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import fastifyHelmet from '@fastify/helmet';
 import fastifyCors from '@fastify/cors';
 import fastifyCompress from '@fastify/compress';
 import fastifyRateLimit from '@fastify/rate-limit';
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { env } from '../../../config';
 import Logger from '../../../utils/logger';
 
 export const configureFastify = async (app: FastifyInstance) => {
-    await app.register(fastifyHelmet as any);
+    await app.register(fastifyHelmet);
 
-    await app.register(fastifyCors as any, {
+    await app.register(fastifyCors, {
         origin: (origin: string | undefined, cb: any) => {
             if (!origin) return cb(null, true);
             const allowedOrigins = env.ALLOWED_ORIGINS;
@@ -23,19 +23,17 @@ export const configureFastify = async (app: FastifyInstance) => {
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     });
 
-    // Register compression plugin (wrap in try/catch to log potential plugin errors)
     try {
-        await app.register(fastifyCompress as any, { global: true });
+        await app.register(fastifyCompress, { global: true });
     } catch (err) {
         Logger.error('FastifyHooks', 'Failed to register compress plugin', err as any);
     }
 
-    await app.register(fastifyRateLimit as any, {
+    await app.register(fastifyRateLimit, {
         max: 50,
         timeWindow: '1 minute',
     });
 
-    // Diagnostic hooks to trace reply lifecycle and potential premature close
     app.addHook('onSend', async (request: FastifyRequest, reply: FastifyReply, payload: any) => {
         try {
             const rid = (request as any).id || (request as any).reqId || 'unknown';
@@ -62,7 +60,6 @@ export const configureFastify = async (app: FastifyInstance) => {
         } catch (e) {
             Logger.error('FastifyHooks', 'setErrorHandler internal error', e as any);
         }
-        // default behaviour
         (reply as any).send(error);
     });
 

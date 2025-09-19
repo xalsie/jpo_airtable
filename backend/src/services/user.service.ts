@@ -1,8 +1,13 @@
 import { User, TUser } from '../infrastructure/airtable/models';
 import Logger from '../utils/logger'
 
-export const UserService = {
-    async me(userId: string) {
+export type IUser = {
+    me: (userId: string) => Promise<TUser | { error: string }>;
+    update: (userId: string, data: Partial<TUser>) => Promise<TUser | { error: string }>;
+}
+
+export class UserService implements IUser {
+    async me(userId: string): Promise<TUser | { error: string }> {
         try {
             const user = await User.getById(userId) as TUser | null;
             if (!user) {
@@ -18,14 +23,14 @@ export const UserService = {
                 promo: user.promo,
                 telephone: user.telephone,
                 isContacted: user.isContacted
-            };
+            } as TUser;
         } catch (error) {
             Logger.error('AuthService', 'Error in me:', error);
             return { error: 'Erreur lors de la récupération de l\'utilisateur' };
         }
-    },
+    }
 
-    update: async (userId: string, data: Partial<TUser>) => {
+    async update(userId: string, data: Partial<TUser>): Promise<TUser | { error: string }> {
         try {
             const fieldIdMap: Record<string, string> = User.FieldsIds;
 
@@ -54,7 +59,5 @@ export const UserService = {
             Logger.error('UserService', 'Error in update:', error);
             return { error: 'Erreur lors de la mise à jour de l\'utilisateur' };
         }
-    },
+    }
 }
-
-export default UserService;

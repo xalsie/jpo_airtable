@@ -1,7 +1,15 @@
 import { Project, TProject } from '../infrastructure/airtable/models';
 import Logger from '../utils/logger'
 
-export const ProjectService = {
+export type IProject = {
+    getAll: (params: {
+        limit: number,
+        offset: number
+    }) => Promise<TProject[]>;
+    getById: (id: string) => Promise<TProject | null>;
+}
+
+export class ProjectService implements IProject {
     async getAll(params: { limit?: number; offset?: number } = {}): Promise<TProject[]> {
         try {
             const projects = await Project.getAll({ fields: Object.values(Project.FieldsIds), ...params });
@@ -10,7 +18,7 @@ export const ProjectService = {
             Logger.error('ProjectService', 'Error fetching projects:', error);
             throw new Error('Failed to fetch projects');
         }
-    },
+    }
 
     async getById(id: string): Promise<TProject | null> {
         try {
@@ -22,5 +30,3 @@ export const ProjectService = {
         }
     }
 }
-
-export default ProjectService
