@@ -1,15 +1,16 @@
+import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import fastifyHelmet from '@fastify/helmet';
 import fastifyCors from '@fastify/cors';
 import fastifyCompress from '@fastify/compress';
 import fastifyRateLimit from '@fastify/rate-limit';
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import fastifyCaching from '@fastify/caching';
 import { env } from '../../../config';
 import Logger from '../../../utils/logger';
 
 export const configureFastify = async (app: FastifyInstance) => {
-    await app.register(fastifyHelmet as any);
+    await app.register(fastifyHelmet);
 
-    await app.register(fastifyCors as any, {
+    await app.register(fastifyCors, {
         origin: (origin: string | undefined, cb: any) => {
             if (!origin) return cb(null, true);
             const allowedOrigins = env.ALLOWED_ORIGINS;
@@ -23,25 +24,42 @@ export const configureFastify = async (app: FastifyInstance) => {
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     });
 
-    // Register compression plugin (wrap in try/catch to log potential plugin errors)
     try {
-        await app.register(fastifyCompress as any, { global: true });
+        await app.register(fastifyCompress, { global: true });
     } catch (err) {
         Logger.error('FastifyHooks', 'Failed to register compress plugin', err as any);
     }
 
-    await app.register(fastifyRateLimit as any, {
+    await app.register(fastifyRateLimit, {
         max: 50,
         timeWindow: '1 minute',
     });
 
-    // Diagnostic hooks to trace reply lifecycle and potential premature close
+    // Register fastify caching plugin to leverage HTTP caching for GET responses.
+    try {
+        await app.register(fastifyCaching, {
+            privacy: fastifyCaching.privacy.PUBLIC,
+            expiresIn: 300 // default cache TTL 5 minutes
+        } as any);
+    } catch (err) {
+        Logger.error('FastifyHooks', 'Failed to register caching plugin', err as any);
+    }
+
     app.addHook('onSend', async (request: FastifyRequest, reply: FastifyReply, payload: any) => {
         try {
             const rid = (request as any).id || (request as any).reqId || 'unknown';
             Logger.info('FastifyHooks', `onSend hook - reqId=${rid} status=${reply.statusCode} payloadLength=${payload?.length ?? 'unknown'}`);
         } catch (e) {
             Logger.error('FastifyHooks', 'onSend hook error', e as any);
+        }
+        // Ensure GET responses have a Cache-Control header when not set by the route
+        try {
+            if (request.method === 'GET' && !reply.getHeader('cache-control')) {
+                // short caching for dynamic resources; specific routes can override
+                reply.header('Cache-Control', 'public, max-age=300, s-maxage=300');
+            }
+        } catch (e) {
+            Logger.error('FastifyHooks', 'onSend cache header error', e as any);
         }
         return payload;
     });
@@ -62,7 +80,6 @@ export const configureFastify = async (app: FastifyInstance) => {
         } catch (e) {
             Logger.error('FastifyHooks', 'setErrorHandler internal error', e as any);
         }
-        // default behaviour
         (reply as any).send(error);
     });
 

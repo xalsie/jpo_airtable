@@ -10,9 +10,22 @@ const JWT_SECRET = env.JWT_SECRET;
 if (!JWT_SECRET) {
     throw new Error('JWT_SECRET environment variable is required')
 }
+export type IAuth = {
+    login: (email: string, password: string) => Promise<{ token: string, user: Partial<TUser> } | null>;
+    register: (params: {
+        email: string,
+        password: string,
+        firstname: string,
+        lastname: string,
+        school: string,
+        promo: string,
+        telephone: string,
+        isContacted: boolean
+    }) => Promise<{ token: string, user: Partial<TUser> } | { error: string }>;
+};
 
-export const AuthService = {
-    async login(email: string, password: string) {
+export class AuthService implements IAuth {
+    async login(email: string, password: string): Promise<{ token: string, user: Partial<TUser> } | null> {
         const user: any = await User.getAll({  }).then((users: any) => users.find((u: any) => u[User.FieldsIds.email] === email)) as (TUser | null)
 
         const hashToCompare = user ? user[User.FieldsIds.password] : DUMMY_HASH
@@ -42,7 +55,7 @@ export const AuthService = {
                 isContacted: user[User.FieldsIds.isContacted]
             }
         }
-    },
+    }
 
     async register({
         email,
@@ -103,7 +116,7 @@ export const AuthService = {
             Logger.error('AuthService', 'Error in register:', error)
             throw error
         }
-    },
+    }
 }
 
 export default AuthService
