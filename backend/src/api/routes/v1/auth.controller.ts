@@ -8,6 +8,7 @@ import { IAuth } from "../../../services/auth.service";
 export default (service: IAuth) => async (fastify: FastifyInstance) => {
     fastify.post(`/register`, {
         schema: {
+            tags: ['Auth'],
             body: {
                 type: 'object',
                 required: ['email', 'password', 'firstname', 'lastname', 'school', 'promo', 'telephone'],
@@ -66,6 +67,7 @@ export default (service: IAuth) => async (fastify: FastifyInstance) => {
 
     fastify.post(`/login`, {
         schema: {
+            tags: ['Auth'],
             body: {
                 type: 'object',
                 required: ['email', 'password'],

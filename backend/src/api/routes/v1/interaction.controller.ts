@@ -6,6 +6,7 @@ import Logger from '../../../utils/logger';
 export default (service: IInteraction) => async (fastify: FastifyInstance) => {
     fastify.get('/', {
         schema: {
+            tags: ['Interactions'],
             querystring: {
                 type: 'object',
                 properties: {

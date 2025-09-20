@@ -34,13 +34,35 @@ export class FastifyApi {
         services: Services
     ) {
         this.server = fastify({
-            ignoreTrailingSlash: true,
             exposeHeadRoutes: false,
         });
 
         if (config.openapi) {
-            this.server.register(swagger);
-            this.server.register(swaggerUi);
+            this.server.register(swagger as any, {
+                openapi: {
+                    info: {
+                        title: 'JPO Airtable API',
+                        version: '1.0.0',
+                    },
+                    components: {
+                        securitySchemes: {
+                            bearerAuth: {
+                                type: 'http',
+                                scheme: 'bearer',
+                                bearerFormat: 'JWT'
+                            }
+                        }
+                    },
+                    security: []
+                }
+            });
+
+            this.server.register(swaggerUi as any, {
+                routePrefix: '/documentation',
+                uiConfig: {
+                    persistAuthorization: true
+                }
+            });
         }
 
         this.server.get("/health", () => "OK");

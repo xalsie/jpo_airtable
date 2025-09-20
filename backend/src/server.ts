@@ -10,10 +10,10 @@ import { AuthService, InteractionService, ProjectService, UserService } from "./
     const userService = new UserService();
 
     const api = new FastifyApi(config.api, {
-        auth: authService as any,
-        interaction: interactionService as any,
-        project: projectService as any,
-        user: userService as any,
-    } as any);
+        auth: authService,
+        interaction: interactionService,
+        project: projectService,
+        user: userService,
+    });
     await api.serve();
 })();

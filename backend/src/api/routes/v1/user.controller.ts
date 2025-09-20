@@ -9,11 +9,17 @@ export default (service: IUser) => async (fastify: FastifyInstance) => {
     fastify.decorate('authenticate', authenticate);
 
     fastify.get(`/me`, {
-        preHandler: authenticate
+        preHandler: authenticate,
+        schema: {
+            tags: ['Users'],
+            security: [
+                { bearerAuth: [] }
+            ]
+        }
     }, async (request, reply) => {
         try {
             const userId = (request as any).user.userId;
-            const result = await service.me ? await service.me(userId) : null;
+            const result = await service.me(userId);
             if (!result || (result as any).error) {
                 reply.status(404).send({ message: (result as any)?.error || 'Utilisateur non trouvé' })
                 return;
@@ -28,6 +34,10 @@ export default (service: IUser) => async (fastify: FastifyInstance) => {
     fastify.patch(`/me`, {
         preHandler: authenticate,
         schema: {
+            tags: ['Users'],
+            security: [
+                { bearerAuth: [] }
+            ],
             body: {
                 type: 'object',
                 properties: {

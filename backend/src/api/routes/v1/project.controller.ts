@@ -6,6 +6,7 @@ import Logger from '../../../utils/logger';
 export default (service: IProject) => async (fastify: FastifyInstance) => {
     fastify.get('/', {
         schema: {
+            tags: ['Projects'],
             querystring: {
                 type: 'object',
                 properties: {
