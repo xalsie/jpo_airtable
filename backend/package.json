@@ -4,12 +4,15 @@
   "description": "Fastify API backend for JPO Airtable project",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "nodemon --watch src --exec ts-node src/index.ts",
+    "dev": "nodemon --watch src --exec ts-node src/server.ts",
     "build": "tsc",
-    "start": "node ./dist/index.js",
-    "server": "node ./dist/index.js"
+    "start": "bun ./server.js",
+    "worker": "ts-node src/worker/airtableSync.worker.ts",
+    "worker:prod": "bun ./dist/worker/airtableSync.worker.js",
+    "server": "bun ./server.js"
   },
   "dependencies": {
+    "@fastify/caching": "^9.0.3",
     "@fastify/compress": "^8.1.0",
     "@fastify/cors": "^11.1.0",
     "@fastify/env": "^5.0.2",
@@ -19,11 +22,12 @@
     "@fastify/swagger-ui": "^5.2.3",
     "airtable": "^0.12.2",
     "bcrypt": "^6.0.0",
+    "bullmq": "^5.58.7",
     "dotenv": "^17.2.2",
     "fastify": "^5.6.0",
     "ioredis": "^5.7.0",
     "jsonwebtoken": "^9.0.2",
-    "zod": "^4.1.9"
+    "zod": "^4.1.11"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

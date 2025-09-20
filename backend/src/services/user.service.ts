@@ -1,5 +1,7 @@
 import { User, TUser } from '../infrastructure/airtable/models';
 import Logger from '../utils/logger'
+import redis from '../utils/redis';
+import { getQueue } from '../infrastructure/queue/bullmq';
 
 export type IUser = {
     me: (userId: string) => Promise<TUser | { error: string }>;
@@ -9,23 +11,22 @@ export type IUser = {
 export class UserService implements IUser {
     async me(userId: string): Promise<TUser | { error: string }> {
         try {
+            const key = `user:${userId}`;
+            const cached = await redis.get(key);
+            if (cached) {
+                return JSON.parse(cached) as TUser;
+            }
+
             const user = await User.getById(userId) as TUser | null;
             if (!user) {
                 return { error: 'Utilisateur non trouvé' };
             }
-            return {
-                id: user.id,
-                email: user.email,
-                firstname: user.firstname,
-                lastname: user.lastname,
-                avatar: user.avatar,
-                school: user.school,
-                promo: user.promo,
-                telephone: user.telephone,
-                isContacted: user.isContacted
-            } as TUser;
+
+            // cache for 5 minutes
+            await redis.set(key, JSON.stringify(user), 'EX', 300);
+            return user;
         } catch (error) {
-            Logger.error('AuthService', 'Error in me:', error);
+            Logger.error('UserService', 'Error in me:', error);
             return { error: 'Erreur lors de la récupération de l\'utilisateur' };
         }
     }
@@ -50,11 +51,26 @@ export class UserService implements IUser {
                 return { error: 'Aucun champ valide à mettre à jour' };
             }
 
-            const updated = await User.update(userId, updateData);
-            if (!updated) {
-                return { error: 'Utilisateur non trouvé ou non modifié' };
+            const cacheKey = `user:${userId}`;
+            // Optimistically update cache for fast response
+            const cached = await redis.get(cacheKey);
+            const current = cached ? JSON.parse(cached) as Partial<TUser> : {};
+            const optimistic = { ...(current as object), ...(data as object), id: userId } as TUser;
+            await redis.set(cacheKey, JSON.stringify(optimistic), 'EX', 3600);
+
+            // Push job to BullMQ queue for background sync to Airtable
+            const queue = getQueue();
+            try {
+                Logger.info('UserService', `Enqueue syncUser job for user ${userId}`);
+                await queue.add('syncUser', { userId, updateData }, { attempts: 5, backoff: { type: 'exponential', delay: 1000 } });
+                Logger.info('UserService', `Enqueued syncUser job for user ${userId}`);
+            } catch (qerr) {
+                // Don't fail the whole request if enqueueing fails; log for investigation
+                Logger.error('UserService', `Failed to enqueue syncUser job for user ${userId}`, qerr);
             }
-            return updated;
+
+            // Return optimistic response
+            return optimistic;
         } catch (error) {
             Logger.error('UserService', 'Error in update:', error);
             return { error: 'Erreur lors de la mise à jour de l\'utilisateur' };

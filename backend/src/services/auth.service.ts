@@ -25,7 +25,7 @@ export type IAuth = {
 };
 
 export class AuthService implements IAuth {
-    async login(email: string, password: string) {
+    async login(email: string, password: string): Promise<{ token: string, user: Partial<TUser> } | null> {
         const user: any = await User.getAll({  }).then((users: any) => users.find((u: any) => u[User.FieldsIds.email] === email)) as (TUser | null)
 
         const hashToCompare = user ? user[User.FieldsIds.password] : DUMMY_HASH
