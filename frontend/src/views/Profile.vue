@@ -13,7 +13,7 @@ const initial = reactive({
     school: "",
     promo: "",
     telephone: "",
-    isContacted: false,
+    isContacted: false
 });
 const form = reactive({
     firstname: undefined,
@@ -22,7 +22,7 @@ const form = reactive({
     school: undefined,
     promo: undefined,
     telephone: undefined,
-    isContacted: undefined,
+    isContacted: undefined
 });
 const message = ref("");
 const messageColor = ref("green");
@@ -97,63 +97,31 @@ const remove = async () => {
                 <form class="form" @submit.prevent="save">
                     <div class="form-elements">
                         <div class="form-row">
-                            <input
-                                v-model="form.firstname"
-                                :placeholder="initial.firstname || 'Prénom'"
-                            />
-                            <input
-                                v-model="form.lastname"
-                                :placeholder="initial.lastname || 'Nom'"
-                            />
+                            <input v-model="form.firstname" :placeholder="initial.firstname || 'Prénom'" />
+                            <input v-model="form.lastname" :placeholder="initial.lastname || 'Nom'" />
                         </div>
-                        <div class="form-column">
-                            <input
-                                v-model="form.email"
-                                type="email"
-                                :placeholder="initial.email || 'Email'"
-                            />
+                        <div class="form-row column">
+                            <input v-model="form.email" type="email" :placeholder="initial.email || 'Email'" />
                         </div>
                         <div class="form-row">
-                            <input
-                                v-model="form.school"
-                                :placeholder="initial.school || 'École'"
-                            />
-                            <input
-                                v-model="form.promo"
-                                :placeholder="initial.promo || 'Promo'"
-                            />
+                            <input v-model="form.school" :placeholder="initial.school || 'École'" />
+                            <input v-model="form.promo" :placeholder="initial.promo || 'Promo'" />
                         </div>
-                        <div class="form-column">
-                            <input
-                                v-model="form.telephone"
-                                :placeholder="initial.telephone || 'Téléphone'"
-                            />
+                        <div class="form-row column">
+                            <input v-model="form.telephone" :placeholder="initial.telephone || 'Téléphone'" />
                         </div>
                         <div class="form-row">
                             <label>
-                                <input
-                                    type="checkbox"
-                                    v-model="form.isContacted"
-                                    :checked="initial.isContacted"
-                                />
-                                Je souhaite être contacté(e) pour plus
-                                d'informations
+                                <input type="checkbox" v-model="form.isContacted" :checked="initial.isContacted" />
+                                Je souhaite être contacté(e) pour plus d'informations
                             </label>
                         </div>
                     </div>
                     <div class="form-elements">
-                        <button type="submit" class="primary">
-                            Enregistrer
-                        </button>
-                        <button type="button" class="secondary" @click="remove">
-                            Supprimer mon compte
-                        </button>
+                        <button type="submit" class="primary">Enregistrer</button>
+                        <button type="button" class="secondary" @click="remove">Supprimer mon compte</button>
                     </div>
-                    <div
-                        v-if="message"
-                        :style="{ color: messageColor }"
-                        class="message"
-                    >
+                    <div v-if="message" :style="{ color: messageColor }" class="message">
                         {{ message }}
                     </div>
                 </form>
