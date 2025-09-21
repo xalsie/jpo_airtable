@@ -1,7 +1,6 @@
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { defineStore } from "pinia";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+import UserService from "../services/userService";
 
 export const useUserStore = defineStore("user", () => {
     const token = ref(null);
@@ -9,95 +8,83 @@ export const useUserStore = defineStore("user", () => {
     const isAuthenticated = ref(false);
 
     async function register(payload) {
-        try {
-            const body = {
-                email: payload.email,
-                password: payload.password,
-                firstname: payload.firstname,
-                lastname: payload.lastname,
-                school: payload.school || "",
-                promo: payload.promo || "",
-                telephone: payload.telephone || "",
-                isContacted: payload.isContacted || false
-            };
-            const response = await fetch(`${API_URL}/api/auth/register`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(body),
-            });
-            const result = await response.json();
-            if (response.ok && result) {
-                data.value = result.user || result;
-                token.value = result.token || null;
-                isAuthenticated.value = true;
-                return { success: true, user: data.value, token: token.value };
-            } else {
-                return { success: false, message: result.message || "Erreur d'inscription" };
-            }
-        } catch (e) {
-            return { success: false, message: "Erreur réseau" };
+        const result = await UserService.register(payload);
+        if (result.success) {
+            data.value = result.user;
+            token.value = result.token;
+            isAuthenticated.value = true;
         }
+        return result;
     }
 
     async function login(payload) {
-        try {
-            const response = await fetch(`${API_URL}/api/auth/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload),
-            });
-            const result = await response.json();
-            if (response.ok && result) {
-                data.value = result.user || result;
-                token.value = result.token || null;
-                isAuthenticated.value = true;
-                return { success: true, user: data.value, token: token.value };
-            } else {
-                return { success: false, message: result.message || "Erreur de connexion" };
-            }
-        } catch (e) {
-            return { success: false, message: "Erreur réseau" };
+        const result = await UserService.login(payload);
+        if (result.success) {
+            data.value = result.user;
+            token.value = result.token;
+            isAuthenticated.value = true;
         }
+        return result;
     }
 
     function logout() {
+        console.log("Logging out user");
         data.value = null;
         token.value = null;
         isAuthenticated.value = false;
+        console.log("User logged out", data.value, token.value, isAuthenticated.value);
     }
 
     async function updateProfile(payload) {
-        if (!token.value) {
-            return { success: false, message: "Non authentifié" };
+        const result = await UserService.updateProfile(
+            payload,
+            token.value
+        );
+        if (result.success) {
+            data.value = { ...data.value, ...result.user };
         }
-        try {
-            const response = await fetch(`${API_URL}/api/user/me`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token.value}`
-                },
-                body: JSON.stringify(payload),
-            });
-            const result = await response.json();
-            if (response.ok && result) {
-                data.value = { ...data.value, ...result };
-                return { success: true, user: data.value };
-            } else {
-                return { success: false, message: result.message || "Erreur lors de la mise à jour" };
-            }
-        } catch (e) {
-            return { success: false, message: "Erreur réseau" };
-        }
+        return result;
     }
 
     async function deleteAccount() {
-        // À implémenter
+        const result = await UserService.deleteAccount(token.value);
+        if (result.success) {
+            logout();
+        }
+        return result;
     }
+
+    watch(token, (newToken) => {
+        if (!newToken) {
+            data.value = null;
+            isAuthenticated.value = false;
+
+            try {
+                const key = '__persisted__user';
+                sessionStorage.removeItem(key);
+                localStorage.removeItem(key);
+            } catch (e) {
+                console.error("Error clearing persisted state:", e);
+            }
+
+            return;
+        }
+
+        const decoded = UserService.parseJwt(newToken);
+        if (!decoded || !decoded.exp || decoded.exp * 1000 <= Date.now()) {
+            data.value = null;
+            token.value = null;
+            isAuthenticated.value = false;
+            UserService.clearAutoLogout && UserService.clearAutoLogout();
+            return;
+        }
+
+        UserService.scheduleAutoLogout(newToken, () => {
+            data.value = null;
+            token.value = null;
+            isAuthenticated.value = false;
+        });
+    }, { immediate: true });
 
     return {
         token,
@@ -107,10 +94,10 @@ export const useUserStore = defineStore("user", () => {
         login,
         logout,
         updateProfile,
-        deleteAccount
+        deleteAccount,
     };
-},
-{    persist: true,
-})
+}, {
+    persist: true
+});
 
 export default useUserStore;
