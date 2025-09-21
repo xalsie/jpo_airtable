@@ -57,11 +57,11 @@ export class ProjectService implements IProject {
 
             if (userId && type) {
                 await Interactions.create({
-                    type,
-                    author: [userId],
-                    project: [id],
-                    created: new Date().toISOString(),
-                    updated: new Date().toISOString(),
+                    [Interactions.FieldsIds.type]: type,
+                    [Interactions.FieldsIds.author]: [userId],
+                    [Interactions.FieldsIds.project]: [id],
+                    [Interactions.FieldsIds.created]: new Date().toISOString(),
+                    [Interactions.FieldsIds.updated]: new Date().toISOString(),
                 } as any);
             }
         } catch (error) {
