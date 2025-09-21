@@ -1,0 +1,44 @@
+services:
+  redis:
+    image: redis:latest
+    container_name: jpo_redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+
+  backend:
+    build:
+      context: ./backend
+    container_name: jpo_backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - redis
+    ports:
+      - '3001:3001'
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: jpo_frontend
+    restart: unless-stopped
+    ports:
+      - '8080:80'
+    depends_on:
+      - backend
+
+  worker:
+    image: jpo_airtable-backend:latest
+    container_name: jpo_worker
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - redis
+    entrypoint: ["bun"]
+    command: ["./worker/airtableSync.worker.js"]
+
+networks:
+  default:
+    name: jpo_network
