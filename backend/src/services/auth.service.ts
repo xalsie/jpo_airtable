@@ -26,9 +26,12 @@ export type IAuth = {
 
 export class AuthService implements IAuth {
     async login(email: string, password: string): Promise<{ token: string, user: Partial<TUser> } | null> {
-        const user: any = await User.getAll({  }).then((users: any) => users.find((u: any) => u[User.FieldsIds.email] === email)) as (TUser | null)
+        const user: TUser | null = await User.getAll({  }).then((users: any) => users.find((u: any) => u.email === email)) as (TUser | null)
 
-        const hashToCompare = user ? user[User.FieldsIds.password] : DUMMY_HASH
+        console.log('User found:', user);
+        const hashToCompare = user ? user.password : DUMMY_HASH
+
+        console.log('Hash to compare:', password, hashToCompare);
 
         const valid = await bcrypt.compare(password, hashToCompare)
 
@@ -45,14 +48,14 @@ export class AuthService implements IAuth {
             token,
             user: {
                 id: user.id,
-                email: user[User.FieldsIds.email],
-                firstname: user[User.FieldsIds.firstname],
-                lastname: user[User.FieldsIds.lastname],
-                avatar: user[User.FieldsIds.avatar],
-                school: user[User.FieldsIds.school],
-                promo: user[User.FieldsIds.promo],
-                telephone: user[User.FieldsIds.telephone],
-                isContacted: user[User.FieldsIds.isContacted]
+                email: user.email,
+                firstname: user.firstname,
+                lastname: user.lastname,
+                avatar: user.avatar,
+                school: user.school,
+                promo: user.promo,
+                telephone: user.telephone,
+                isContacted: user.isContacted
             }
         }
     }
@@ -77,11 +80,11 @@ export class AuthService implements IAuth {
         isContacted: boolean
     }) {
         try {
-            let existingUsers = await User.getAll({  }).then((users: any) => users.filter((u: any) => u[User.FieldsIds.email] === email))
+            let existingUsers: TUser[] | null = await User.getAll({  }).then((users: any) => users.filter((u: any) => u.email === email))
 
             const hashed = await bcrypt.hash(password, 10)
 
-            if (existingUsers.length > 0) {
+            if (existingUsers && existingUsers.length > 0) {
                 return { error: 'Email already in use' }
             }
 
@@ -94,7 +97,7 @@ export class AuthService implements IAuth {
                 [User.FieldsIds.avatar]: null,
                 [User.FieldsIds.school]: school,
                 [User.FieldsIds.promo]: promo,
-                [User.FieldsIds.telephone]: telephone,
+                [User.FieldsIds.telephone]: telephone
             }) as TUser
 
             const token = jwt.sign({ userId: user.id, role: 'role_user' }, JWT_SECRET, { expiresIn: env.JWT_EXPIRATION })

@@ -53,19 +53,24 @@ export class User {
         dislikes: 'fldl7vLnvEcVCuuXd'
     };
 
+    private static FieldIdToKeyMap: Record<string, string> = Object.entries(User.FieldsIds).reduce((acc, [key, val]) => {
+        acc[val] = key;
+        return acc;
+    }, {} as Record<string, string>);
+
     static ViewIds = {
         emailOnly: 'viwdo6xfIhUWTnlVo'
     }
 
     static async getAll({ view, fields }: { view?: string; fields?: string[] }): Promise<TUser[]> {
         const records = await this.airtableService.getAll({ view, fields });
-        return records as TUser[];
+        return records.map(r => AirtableService.remapRecordFields(r, this.FieldIdToKeyMap));
     }
 
     static async getById(id: string): Promise<TUser | null> {
         try {
             const record = await this.airtableService.getById(id);
-            return record as TUser;
+            return AirtableService.remapRecordFields(record, this.FieldIdToKeyMap) as TUser;
         } catch (error) {
             return null;
         }
@@ -73,12 +78,12 @@ export class User {
 
     static async create(fields: Partial<TUser>): Promise<TUser> {
         const record = await this.airtableService.create(fields);
-        return record as TUser;
+        return AirtableService.remapRecordFields(record, this.FieldIdToKeyMap) as TUser;
     }
 
     static async update(id: string, fields: Partial<TUser>): Promise<TUser> {
         const record = await this.airtableService.update(id, fields);
-        return record as TUser;
+        return AirtableService.remapRecordFields(record, this.FieldIdToKeyMap) as TUser;
     }
 
     static async delete(id: string): Promise<boolean> {

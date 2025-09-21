@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { env } from '../../../config/env';
 import AirtableService from '../airtable.service';
+import { Interactions } from './interactions';
 
 export class Project {    
     private static ProjectTable = 'tblXBumfKHHBc6gLu';
@@ -20,10 +21,12 @@ export class Project {
         links: z.array(z.string()).optional().nullable(),
         visibility: z.string().min(1),
         comments: z.array(z.string()).optional().nullable(),
-        activities: z.array(z.string()).optional().nullable(),
+        activities: Interactions.Schema.array().optional().nullable(),
         keywords: z.array(z.string()).optional().nullable(),
         created: z.string().optional().nullable(),
         updated: z.string().optional().nullable(),
+        likes: z.number().optional().readonly(),
+        dislikes: z.number().optional().readonly(),
     });
 
     static FieldsIds: Record<
@@ -42,21 +45,33 @@ export class Project {
         activities: 'fldcGp3K8W6Y80tWC',
         keywords: 'fldPsEA6ah2uZI5tC',
         created: 'fldkk3AXKsUWAoXAj',
-        updated: 'flddcVwRMHcPE1gf3'
+        updated: 'flddcVwRMHcPE1gf3',
+        likes: 'fldiVFTnxx5XZNwGf',
+        dislikes: 'fldtq8PjZQCLPndPE'
     };
+
+    private static FieldIdToKeyMap: Record<string, string> = Object.entries(Project.FieldsIds).reduce((acc, [key, val]) => {
+        acc[val] = key;
+        return acc;
+    }, {} as Record<string, string>);
 
     static async getAll({ view, fields }: { view?: string; fields?: string[] }): Promise<TProject[]> {
         const records = await this.airtableService.getAll({ view, fields });
-        return records as TProject[];
+        return records.map(r => AirtableService.remapRecordFields(r, this.FieldIdToKeyMap));
     }
 
     static async getById(id: string): Promise<TProject | null> {
         try {
             const record = await this.airtableService.getById(id);
-            return record as TProject;
+            return AirtableService.remapRecordFields(record, this.FieldIdToKeyMap) as TProject;
         } catch (error) {
             return null;
         }
+    }
+
+    static async update(id: string, fields: Partial<TProject>): Promise<TProject> {
+        const record = await this.airtableService.update(id, fields);
+        return AirtableService.remapRecordFields(record, this.FieldIdToKeyMap) as TProject;
     }
 }
 

@@ -27,7 +27,21 @@ export class AirtableService {
     return this._instance[tableName];
   }
 
-  async getAll(params: { view?: string; fields?: string[] }): Promise<Array<{ [key: string]: any }>> {
+  static remapRecordFields(record: { [key: string]: any }, FieldIdToKeyMap: Record<string, string>) {
+    const remapped: any = { id: record.id };
+    for (const [k, v] of Object.entries(record)) {
+      if (k === 'id') continue;
+      const schemaKey = FieldIdToKeyMap[k];
+      if (schemaKey) {
+        remapped[schemaKey] = v;
+      } else {
+        remapped[k] = v;
+      }
+    }
+    return remapped;
+  }
+
+  async getAll(params: { view?: string; fields?: string[]; returnFieldNames?: boolean } = {}): Promise<Array<{ [key: string]: any }>> {
     try {
       const records = await this.base(this.tableName).select({
         ...(params.view ? { view: params.view } : {}),

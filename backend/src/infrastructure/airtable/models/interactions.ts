@@ -11,9 +11,9 @@ export class Interactions {
 
     static Schema = z.object({
         id: z.string(),
-        type: z.string().min(1),
-        author: z.string().min(1),
-        project: z.string().min(1),
+        type: z.enum(['like', 'dislike', 'comment']),
+        author: z.array(z.string()).min(1),
+        project: z.array(z.string()).min(1),
         created: z.string().optional().nullable(),
         updated: z.string().optional().nullable(),
     });
@@ -29,15 +29,20 @@ export class Interactions {
         updated: 'fld9QmKqXxX3pBr29',
     };
 
+    private static FieldIdToKeyMap: Record<string, string> = Object.entries(Interactions.FieldsIds).reduce((acc, [key, val]) => {
+        acc[val] = key;
+        return acc;
+    }, {} as Record<string, string>);
+
     static async getAll({ view, fields }: { view?: string; fields?: string[] }): Promise<TInteractions[]> {
         const records = await this.airtableService.getAll({ view, fields });
-        return records as TInteractions[];
+        return records.map(r => AirtableService.remapRecordFields(r, this.FieldIdToKeyMap));
     }
 
     static async getById(id: string): Promise<TInteractions | null> {
         try {
             const record = await this.airtableService.getById(id);
-            return record as TInteractions;
+            return AirtableService.remapRecordFields(record, this.FieldIdToKeyMap) as TInteractions;
         } catch (error) {
             return null;
         }
@@ -45,7 +50,12 @@ export class Interactions {
 
     static async create(fields: Partial<TInteractions>): Promise<TInteractions> {
         const record = await this.airtableService.create(fields);
-        return record as TInteractions;
+        return AirtableService.remapRecordFields(record, this.FieldIdToKeyMap) as TInteractions;
+    }
+
+    static async update(id: string, fields: Partial<TInteractions>): Promise<TInteractions> {
+        const record = await this.airtableService.update(id, fields);
+        return AirtableService.remapRecordFields(record, this.FieldIdToKeyMap) as TInteractions;
     }
 
     static async delete(id: string): Promise<boolean> {
