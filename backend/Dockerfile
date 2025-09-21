@@ -19,8 +19,9 @@ RUN apk update && apk upgrade
 RUN rm -rf /var/cache/apk/*
 
 COPY --from=build /usr/src/app/dist ./
+COPY --from=build /usr/src/app/.env ./.env
 COPY --from=build /usr/src/app/package*.json ./
 
-EXPOSE 5001
+EXPOSE 3001
 
 ENTRYPOINT ["/bin/sh", "-c", "bun run server"]
