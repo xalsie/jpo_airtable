@@ -1,5 +1,6 @@
 <script setup>
-import { defineProps, defineEmits } from "vue";
+import { defineProps, defineEmits, computed } from "vue";
+import useUserStore from "../store/useUser";
 
 const props = defineProps({
     project: {
@@ -14,12 +15,26 @@ const props = defineProps({
 
 const emit = defineEmits(["liked", "disliked"]);
 
+const userStore = useUserStore();
+
+const userId = computed(() => userStore.data?.id || null);
+
+const userLiked = computed(() => {
+    if (!props.project || !props.project.activities || !userId.value) return false;
+    return props.project.activities.some((a) => a.type === 'like' && (Array.isArray(a.author) ? a.author.includes(userId.value) : a.author === userId.value));
+});
+
+const userDisliked = computed(() => {
+    if (!props.project || !props.project.activities || !userId.value) return false;
+    return props.project.activities.some((a) => a.type === 'dislike' && (Array.isArray(a.author) ? a.author.includes(userId.value) : a.author === userId.value));
+});
+
 const like = async () => {
-    emit("liked", props.project.id);
+    emit("liked", props.project.id, userLiked.value);
 };
 
 const dislike = async () => {
-    emit("disliked", props.project.id);
+    emit("disliked", props.project.id, userDisliked.value);
 };
 </script>
 
@@ -27,7 +42,7 @@ const dislike = async () => {
     <article class="card">
         <div class="image-wrapper">
             <img
-                :src="project.image || '/assets/images/example.jpg'"
+                :src="Array.isArray(project.image) && project.image.length > 0 ? project.image[0].url : '/assets/images/example.jpg'"
                 :alt="project.title || 'Image du projet'"
             />
         </div>
@@ -50,7 +65,7 @@ const dislike = async () => {
                     <div class="action">
                         <i
                             @click="like"
-                            class="pi pi-thumbs-up-fill like"
+                            :class="['pi', 'pi-thumbs-up-fill', 'like', { 'active': userLiked }]"
                             aria-hidden="true"
                         ></i>
                         <span class="count">{{ project.likes || 0 }}</span>
@@ -59,7 +74,7 @@ const dislike = async () => {
                     <div class="action">
                         <i
                             @click="dislike"
-                            class="pi pi-thumbs-down-fill dislike"
+                            :class="['pi', 'pi-thumbs-down-fill', 'dislike', { 'active': userDisliked }]"
                             aria-hidden="true"
                         ></i>
                         <span class="count">{{ project.dislikes || 0 }}</span>
@@ -186,6 +201,14 @@ const dislike = async () => {
 }
 
 .action i.dislike:hover {
+    background-color: red;
+}
+
+.action i.active.like {
+    background-color: green;
+}
+
+.action i.active.dislike {
     background-color: red;
 }
 

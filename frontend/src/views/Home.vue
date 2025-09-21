@@ -6,37 +6,43 @@ import ProjectCard from "../components/ProjectCard.vue";
 const projectStore = useProjectStore();
 
 const projects = ref([]);
-const q = ref("");
+const test = ref([]);
+const searchValue = ref("");
 
 const load = async () => {
     projects.value = await projectStore.getProjects();
+
+    test.value = projects.value.projects.projects
 };
 onMounted(load);
 
 const search = async () => {
     // TODO: Add endpoint in back-end.
-    // projects.value = await projectStore.searchProjects(q.value);
-    projects.value = await projectStore.getProjects();
+    console.log("Searching for:", searchValue.value);
+    // projects.value = await projectStore.searchProjects(searchValue.value);
+    // projects.value = await projectStore.getProjects();
 };
 const loadAll = load;
 
-const onLiked = async (id) => {
+const onLiked = async (id, userLiked) => {
     // TODO: Add endpoint in back-end.
-    // await projectStore.likeProject(id);
-    await load();
+    console.log("Liked project with id:", id, userLiked);
+    await projectStore.likeProject(id, userLiked);
+    // await load();
 };
 
-const onDisliked = async (id) => {
+const onDisliked = async (id, userDisliked) => {
     // TODO: Add endpoint in back-end.
-    // await projectStore.dislikeProject(id);
-    await load();
+    console.log("Disliked project with id:", id, userDisliked);
+    await projectStore.dislikeProject(id, userDisliked);
+    // await load();
 };
 </script>
 
 <template>
     <div class="container">
         <div class="search">
-            <input v-model="q" placeholder="Recherche par mot-clé..." />
+            <input v-model="searchValue" placeholder="Recherche par mot-clé..." />
             <button @click="search">
                 <i class="pi pi-search"></i>
             </button>
@@ -49,7 +55,7 @@ const onDisliked = async (id) => {
 
         <div class="projects">
             <ProjectCard
-                v-for="p in projects"
+                v-for="p in test"
                 :key="p.id"
                 :project="p"
                 @liked="onLiked"
