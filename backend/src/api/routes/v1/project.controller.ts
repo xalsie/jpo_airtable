@@ -19,8 +19,8 @@ export default (service: IProject) => async (fastify: FastifyInstance) => {
         }
     }, async (request, reply) => {
         try {
-            const { limit = 20, offset = 0 } = request.query as { limit?: number; offset?: number };
-            const projects: TProject[] = await service.getAll({ limit, offset });
+            const { limit = 20, offset = 1 } = request.query as { limit?: number; offset?: number };
+            const projects: TProject[] = await service.getAll({ limit, offset, maxRecords: 3, pageSize: 3 });
 
             reply.status(200).send({ projects, limit, offset });
         } catch (err) {

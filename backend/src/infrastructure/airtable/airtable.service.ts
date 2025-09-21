@@ -41,13 +41,17 @@ export class AirtableService {
     return remapped;
   }
 
-  async getAll(params: { view?: string; fields?: string[]; returnFieldNames?: boolean } = {}): Promise<Array<{ [key: string]: any }>> {
+  async getAll(params: { view?: string; fields?: string[]; returnFieldNames?: boolean; maxRecords?: number; pageSize?: number, offset?: number, limit?: number } = {}): Promise<Array<{ [key: string]: any }>> {
     try {
       const records = await this.base(this.tableName).select({
         ...(params.view ? { view: params.view } : {}),
         ...(params.fields ? { fields: params.fields } : {}),
+        ...(params.maxRecords ? { maxRecords: params.maxRecords } : {}),
+        ...(params.pageSize ? { pageSize: params.pageSize } : {}),
+        ...(params.offset ? { offset: params.offset } : {}),
         returnFieldsByFieldId: true
       }).all();
+
       return records.map(record => ({
         id: record.id,
         ...record.fields

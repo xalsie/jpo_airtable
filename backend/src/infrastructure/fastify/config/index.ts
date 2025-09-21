@@ -27,7 +27,7 @@ export const configureFastify = async (app: FastifyInstance) => {
     try {
         await app.register(fastifyCompress, { global: true });
     } catch (err) {
-        Logger.error('FastifyHooks', 'Failed to register compress plugin', err as any);
+        Logger.error('FastifyHooks', 'Failed to register compress plugin', err);
     }
 
     await app.register(fastifyRateLimit, {
@@ -35,14 +35,13 @@ export const configureFastify = async (app: FastifyInstance) => {
         timeWindow: '1 minute',
     });
 
-    // Register fastify caching plugin to leverage HTTP caching for GET responses.
     try {
         await app.register(fastifyCaching, {
-            privacy: fastifyCaching.privacy.PUBLIC,
-            expiresIn: 300 // default cache TTL 5 minutes
-        } as any);
+            privacy: fastifyCaching.privacy.NOCACHE,
+            expiresIn: 300
+        });
     } catch (err) {
-        Logger.error('FastifyHooks', 'Failed to register caching plugin', err as any);
+        Logger.error('FastifyHooks', 'Failed to register caching plugin', err);
     }
 
     app.addHook('onSend', async (request: FastifyRequest, reply: FastifyReply, payload: any) => {
@@ -50,16 +49,14 @@ export const configureFastify = async (app: FastifyInstance) => {
             const rid = (request as any).id || (request as any).reqId || 'unknown';
             Logger.info('FastifyHooks', `onSend hook - reqId=${rid} status=${reply.statusCode} payloadLength=${payload?.length ?? 'unknown'}`);
         } catch (e) {
-            Logger.error('FastifyHooks', 'onSend hook error', e as any);
+            Logger.error('FastifyHooks', 'onSend hook error', e);
         }
-        // Ensure GET responses have a Cache-Control header when not set by the route
         try {
             if (request.method === 'GET' && !reply.getHeader('cache-control')) {
-                // short caching for dynamic resources; specific routes can override
                 reply.header('Cache-Control', 'public, max-age=300, s-maxage=300');
             }
         } catch (e) {
-            Logger.error('FastifyHooks', 'onSend cache header error', e as any);
+            Logger.error('FastifyHooks', 'onSend cache header error', e);
         }
         return payload;
     });
@@ -69,16 +66,16 @@ export const configureFastify = async (app: FastifyInstance) => {
             const rid = (request as any).id || (request as any).reqId || 'unknown';
             Logger.info('FastifyHooks', `onResponse hook - reqId=${rid} status=${reply.statusCode}`);
         } catch (e) {
-            Logger.error('FastifyHooks', 'onResponse hook error', e as any);
+            Logger.error('FastifyHooks', 'onResponse hook error', e);
         }
     });
 
     app.setErrorHandler((error, request, reply) => {
         try {
             const rid = (request as any).id || (request as any).reqId || 'unknown';
-            Logger.error('FastifyHooks', `setErrorHandler - reqId=${rid} status=${reply.statusCode} error=`, error as any);
+            Logger.error('FastifyHooks', `setErrorHandler - reqId=${rid} status=${reply.statusCode} error=`, error);
         } catch (e) {
-            Logger.error('FastifyHooks', 'setErrorHandler internal error', e as any);
+            Logger.error('FastifyHooks', 'setErrorHandler internal error', e);
         }
         (reply as any).send(error);
     });

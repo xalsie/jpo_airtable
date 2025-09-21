@@ -55,8 +55,8 @@ export class Project {
         return acc;
     }, {} as Record<string, string>);
 
-    static async getAll({ view, fields }: { view?: string; fields?: string[] }): Promise<TProject[]> {
-        const records = await this.airtableService.getAll({ view, fields });
+    static async getAll({ view, fields, params }: { view?: string; fields?: string[]; params?: { limit?: number; offset?: number; maxRecords?: number; pageSize?: number } }): Promise<TProject[]> {
+        const records = await this.airtableService.getAll({ view, fields, ...params });
         return records.map(r => AirtableService.remapRecordFields(r, this.FieldIdToKeyMap));
     }
 
