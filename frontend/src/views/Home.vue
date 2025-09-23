@@ -9,12 +9,16 @@ const projects = ref([]);
 const test = ref([]);
 const searchValue = ref("");
 
-const load = async () => {
-    projects.value = await projectStore.getProjects();
-
-    test.value = projects.value.projects.projects
+const load = async (page = 1) => {
+    const res = await projectStore.getProjects(page, projectStore.meta?.limit || 9);
+    if (res.success) {
+        projects.value = projectStore.projects;
+        test.value = projects.value || [];
+    } else {
+        test.value = [];
+    }
 };
-onMounted(load);
+onMounted(() => load(1));
 
 const search = async () => {
     // TODO: Add endpoint in back-end.
@@ -51,9 +55,9 @@ const onDisliked = async (id, userDisliked) => {
             </button>
         </div>
 
-        <div v-if="projects.length === 0">Aucun projet enregistré.</div>
+        <div v-if="test.length === 0">Aucun projet enregistré.</div>
 
-        <div class="projects">
+        <div v-else class="projects">
             <ProjectCard
                 v-for="p in test"
                 :key="p.id"
@@ -61,6 +65,12 @@ const onDisliked = async (id, userDisliked) => {
                 @liked="onLiked"
                 @disliked="onDisliked"
             />
+        </div>
+
+        <div class="pagination" style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
+            <button @click="load(projectStore.meta.page - 1)" :disabled="projectStore.meta.page <= 1">Précédent</button>
+            <div>Page {{ projectStore.meta.page }} / {{ projectStore.meta.totalPages || '?' }}</div>
+            <button @click="load(projectStore.meta.page + 1)" :disabled="projectStore.meta.totalPages && projectStore.meta.page >= projectStore.meta.totalPages">Suivant</button>
         </div>
     </div>
 </template>

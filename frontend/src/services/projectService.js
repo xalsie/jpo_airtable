@@ -17,20 +17,20 @@ export class ProjectService {
     static API_URL = API_URL;
     static GET_PROJECTS_URL = GET_PROJECTS_URL;
 
-    static async getProjects() {
-        const res = await apiRequest(GET_PROJECTS_URL, {
+    static async getProjects({ page = 1, limit = 9 } = {}) {
+        const params = new URLSearchParams({ limit, page }).toString();
+        const res = await apiRequest(`${GET_PROJECTS_URL}?${params}`, {
             method: "GET",
             headers: { "Content-Type": "application/json" },
         });
         if (res.success) {
-            return { success: true, projects: res.data };
-        } else {
-            return {
-                success: false,
-                message:
-                    res.message || "Erreur lors de la récupération des projets",
-            };
+            const { projects = [], meta = {} } = res.data || {};
+            return { success: true, projects, meta };
         }
+        return {
+            success: false,
+            message: res.message || "Erreur lors de la récupération des projets",
+        };
     }
 
     static async likeProject(projectId) {

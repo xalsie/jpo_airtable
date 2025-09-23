@@ -9,22 +9,39 @@ export const useProjectStore = defineStore(
         const projects = ref([]);
         const loading = ref(false);
         const error = ref(null);
+        const meta = ref({ page: 1, limit: 9, total: 0, totalPages: 0, offset: 0 });
 
         const userStore = useUserStore();
         const userId = computed(() => userStore.data?.id || null);
 
-        async function getProjects() {
+        async function getProjects(page = 1, limit = 9) {
             loading.value = true;
             error.value = null;
-            const res = await ProjectService.getProjects();
+            const res = await ProjectService.getProjects({ page, limit });
             if (res.success) {
                 projects.value = res.projects;
+                meta.value = { ...(meta.value || {}), ...(res.meta || { page, limit }) };
             } else {
-                error.value =
-                    res.message || "Erreur lors de la récupération des projets";
+                error.value = res.message || "Erreur lors de la récupération des projets";
             }
             loading.value = false;
             return res;
+        }
+
+        function setPage(newPage) {
+            const limit = meta.value.limit || 9;
+            return getProjects(newPage, limit);
+        }
+
+        function nextPage() {
+            const p = (meta.value.page || 1) + 1;
+            if (meta.value.totalPages && p > meta.value.totalPages) return null;
+            return setPage(p);
+        }
+
+        function prevPage() {
+            const p = Math.max(1, (meta.value.page || 1) - 1);
+            return setPage(p);
         }
 
         async function likeProject(projectId, userLiked) {
@@ -85,7 +102,11 @@ export const useProjectStore = defineStore(
             projects,
             loading,
             error,
+            meta,
             getProjects,
+            setPage,
+            nextPage,
+            prevPage,
             likeProject,
             dislikeProject,
         };

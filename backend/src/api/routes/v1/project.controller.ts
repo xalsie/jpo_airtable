@@ -14,15 +14,25 @@ export default (service: IProject) => async (fastify: FastifyInstance) => {
                 properties: {
                     limit: { type: 'number', minimum: 1, maximum: 100, default: 20 },
                     offset: { type: 'number', minimum: 0, default: 0 },
+                    page: { type: 'number', minimum: 1, default: 1 }
                 }
             }
         }
     }, async (request, reply) => {
         try {
-            const { limit = 20, offset = 1 } = request.query as { limit?: number; offset?: number };
-            const projects: TProject[] = await service.getAll({ limit, offset, maxRecords: 3, pageSize: 3 });
+            const { limit = 20, offset, page = 1 } = request.query as { limit?: number; offset?: number; page?: number };
 
-            reply.status(200).send({ projects, limit, offset });
+            const computedOffset = typeof offset === 'number' ? offset : (page - 1) * limit;
+
+            const { projects, total } = await service.getAll({ limit, offset: computedOffset });
+
+            const totalPages = Math.ceil(total / limit);
+            const currentPage = Math.floor(computedOffset / limit) + 1;
+
+            reply.status(200).send({
+                projects,
+                meta: { total, page: currentPage, limit, offset: computedOffset, totalPages }
+            });
         } catch (err) {
             Logger.error('ProjectController', 'Error fetching projects:', err);
             reply.status(500).send({ message: 'Internal Server Error' });

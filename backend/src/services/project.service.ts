@@ -2,27 +2,34 @@ import { Project, TProject, Interactions } from '../infrastructure/airtable/mode
 import Logger from '../utils/logger'
 
 export type IProject = {
-    getAll: (params: {
-        limit: number,
-        offset: number,
+    getAll: (params?: {
+        limit?: number,
+        offset?: number,
         maxRecords?: number,
         pageSize?: number
-    }) => Promise<TProject[]>;
+    }) => Promise<{ projects: TProject[]; total: number }>;
     getById: (id: string) => Promise<TProject | null>;
     updateLikes: (id: string, userId: string, type?: 'like'|'dislike') => Promise<void>;
 }
 
 export class ProjectService implements IProject {
-    async getAll(params: { limit?: number; offset?: number, maxRecords?: number, pageSize?: number } = {}): Promise<TProject[]> {
+    async getAll(params: { limit?: number; offset?: number, maxRecords?: number, pageSize?: number } = {}): Promise<{ projects: TProject[]; total: number }> {
         try {
-            const projects: TProject[] = await Project.getAll({ fields: Object.values(Project.FieldsIds), params });
+            const projectsAll: TProject[] = await Project.getAll({ fields: Object.values(Project.FieldsIds) });
             const interactions = await Interactions.getAll({});
 
-            projects.forEach(project => {
+            projectsAll.forEach(project => {
                 project.activities = interactions.filter(i => i.project?.includes(project.id));
             });
 
-            return projects;
+            const total = projectsAll.length;
+
+            const limit = params.limit ?? 20;
+            const offset = params.offset ?? 0;
+
+            const sliced = projectsAll.slice(offset, offset + limit);
+
+            return { projects: sliced, total };
         } catch (error) {
             Logger.error('ProjectService', 'Error fetching projects:', error);
             throw new Error('Failed to fetch projects');
