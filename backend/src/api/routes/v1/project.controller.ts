@@ -102,4 +102,28 @@ export default (service: IProject) => async (fastify: FastifyInstance) => {
             reply.status(500).send({ message: 'Internal Server Error' });
         }
     });
+
+    fastify.get('/:id', {
+        schema: {
+            tags: ['Projects'],
+            params: {
+                type: 'object',
+                properties: { id: { type: 'string' } },
+                required: ['id']
+            }
+        }
+    }, async (request, reply) => {
+        const { id } = request.params as { id: string };
+        try {
+            const project = await service.getById(id);
+            if (!project) {
+                reply.status(404).send({ message: 'Project not found' });
+                return;
+            }
+            reply.status(200).send(project);
+        } catch (err) {
+            Logger.error('ProjectController', `Error fetching project with id ${id}:`, err);
+            reply.status(500).send({ message: 'Internal Server Error' });
+        }
+    });
 }

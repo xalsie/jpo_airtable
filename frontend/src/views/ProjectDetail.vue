@@ -1,26 +1,36 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import ProjectService from "../services/projectService";
 
 const route = useRoute();
 const project = ref(null);
+const loading = ref(false);
 
-// const load = async () => {
-//     project.value = await MockApi.getProjectById(route.params.id);
-// };
-// onMounted(load);
+const load = async () => {
+    loading.value = true;
+    const id = route.params.id;
+    const res = await ProjectService.getProjectById(id);
+    if (res.success) {
+        project.value = res.project;
+    } else {
+        project.value = null;
+    }
+    loading.value = false;
+};
+onMounted(load);
 
-// const like = async () => {
-//     if (!project.value) return;
-//     await MockApi.likeProject(project.value.id);
-//     await load();
-// };
+const like = async () => {
+    if (!project.value) return;
+    await ProjectService.likeProject(project.value.id);
+    await load();
+};
 
-// const dislike = async () => {
-//     if (!project.value) return;
-//     await MockApi.dislikeProject(project.value.id);
-//     await load();
-// };
+const dislike = async () => {
+    if (!project.value) return;
+    await ProjectService.dislikeProject(project.value.id);
+    await load();
+};
 </script>
 
 <template>

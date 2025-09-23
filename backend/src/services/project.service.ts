@@ -68,6 +68,22 @@ export class ProjectService implements IProject {
 
     async getById(id: string): Promise<TProject | null> {
         try {
+            const fullListKey = `projects:all`;
+            try {
+                const cachedAll = await Redis.getInstance().get(fullListKey);
+                if (cachedAll) {
+                    const allProjects: TProject[] = JSON.parse(cachedAll);
+                    const found = allProjects.find(p => p.id === id) || null;
+                    if (found) {
+                        Logger.info('ProjectService', `Found project ${id} in full-list cache`);
+                        return found;
+                    }
+                    Logger.info('ProjectService', `Project ${id} not found in full-list cache, falling back to Airtable`);
+                }
+            } catch (cacheErr) {
+                Logger.error('ProjectService', `Failed to read from cache for getById ${id}:`, cacheErr);
+            }
+
             const project = await Project.getById(id);
             return project;
         } catch (error) {

@@ -62,6 +62,17 @@ export class ProjectService {
         });
         return res;
     }
+
+    static async getProjectById(projectId) {
+        const res = await apiRequest(`${GET_PROJECTS_URL}/${projectId}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        if (res.success) {
+            return { success: true, project: res.data };
+        }
+        return { success: false, message: res.message || 'Erreur lors de la récupération du projet' };
+    }
 }
 
 export default ProjectService;
