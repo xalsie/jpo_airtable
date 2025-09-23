@@ -42,7 +42,7 @@ const dislike = async () => {
     <article class="card">
         <div class="image-wrapper">
             <img
-                :src="Array.isArray(project.image) && project.image.length > 0 ? project.image[0].url : '/assets/images/example.jpg'"
+                :src="Array.isArray(project.image) && project.image.length > 0 ? project.image[0].url : '/assets/images/image_404_not_found.webp'"
                 :alt="project.title || 'Image du projet'"
             />
         </div>

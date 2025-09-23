@@ -27,7 +27,7 @@ const project = ref(null);
     <div v-if="project" class="container">
         <article>
             <div class="image-wrapper">
-                <img src="/assets/images/example.jpg" alt="Image d'exemple" />
+                <img src="/assets/images/image_404_not_found.webp" alt="Image d'exemple" />
             </div>
 
             <div class="content-wrapper">
