@@ -1,14 +1,14 @@
 {
   "name": "jpo-airtable-backend",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Fastify API backend for JPO Airtable project",
   "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon --watch src --exec ts-node src/server.ts",
     "build": "tsc",
     "start": "bun ./server.js",
-    "worker": "ts-node src/worker/airtableSync.worker.ts",
-    "worker:prod": "bun ./dist/worker/airtableSync.worker.js",
+    "worker": "ts-node src/workers/airtableSync.worker.ts",
+    "worker:prod": "bun ./dist/workers/airtableSync.worker.js",
     "server": "bun ./server.js"
   },
   "dependencies": {
@@ -25,7 +25,7 @@
     "bullmq": "^5.58.7",
     "dotenv": "^17.2.2",
     "fastify": "^5.6.1",
-    "ioredis": "^5.7.0",
+    "ioredis": "^5.8.0",
     "jsonwebtoken": "^9.0.2",
     "zod": "^4.1.11"
   },

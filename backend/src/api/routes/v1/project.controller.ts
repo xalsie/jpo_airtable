@@ -22,16 +22,19 @@ export default (service: IProject) => async (fastify: FastifyInstance) => {
         try {
             const { limit = 20, offset, page = 1 } = request.query as { limit?: number; offset?: number; page?: number };
 
-            const computedOffset = typeof offset === 'number' ? offset : (page - 1) * limit;
+            const computedOffset = (typeof offset === 'number' && offset > 0) ? offset : (page - 1) * limit;
 
-            const { projects, total } = await service.getAll({ limit, offset: computedOffset });
+            const result = await service.getAll({ limit, offset: computedOffset });
+
+            const { projects, total } = result as { projects: TProject[]; total: number };
 
             const totalPages = Math.ceil(total / limit);
-            const currentPage = Math.floor(computedOffset / limit) + 1;
+
+            reply.header('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
 
             reply.status(200).send({
                 projects,
-                meta: { total, page: currentPage, limit, offset: computedOffset, totalPages }
+                meta: { total, page, limit, offset: computedOffset, totalPages }
             });
         } catch (err) {
             Logger.error('ProjectController', 'Error fetching projects:', err);

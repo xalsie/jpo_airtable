@@ -2,6 +2,7 @@ import config from "./config";
 
 import { FastifyApi } from "./api/index";
 import { AuthService, InteractionService, ProjectService, UserService } from "./services";
+import { startProjectCacheWorker } from './workers/projectCacheWorker';
 
 (async () => {
     const authService = new AuthService();
@@ -16,4 +17,6 @@ import { AuthService, InteractionService, ProjectService, UserService } from "./
         user: userService,
     });
     await api.serve();
+
+    startProjectCacheWorker({ intervalMs: 1000 * 60 * 1, ttlSeconds: 300 });
 })();

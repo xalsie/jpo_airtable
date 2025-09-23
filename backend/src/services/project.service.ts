@@ -1,4 +1,5 @@
 import { Project, TProject, Interactions } from '../infrastructure/airtable/models';
+import Redis from '../infrastructure/redis/redis'
 import Logger from '../utils/logger'
 
 export type IProject = {
@@ -13,26 +14,55 @@ export type IProject = {
 }
 
 export class ProjectService implements IProject {
-    async getAll(params: { limit?: number; offset?: number, maxRecords?: number, pageSize?: number } = {}): Promise<{ projects: TProject[]; total: number }> {
+    async getAll({ limit = 20, offset = 0 }: { limit?: number; offset?: number } = {}): Promise<{ projects: TProject[]; total: number }> {
         try {
-            const projectsAll: TProject[] = await Project.getAll({ fields: Object.values(Project.FieldsIds) });
-            const interactions = await Interactions.getAll({});
+            const page = Math.floor(offset / limit) + 1;
+            const cacheKey = `projects:page:${page}:limit:${limit}`;
+            const fullListKey = `projects:all`;
 
-            projectsAll.forEach(project => {
-                project.activities = interactions.filter(i => i.project?.includes(project.id));
-            });
+            // 1) try page cache
+            const cachedPage = await Redis.getInstance().get(cacheKey);
+            if (cachedPage) {
+                Logger.info('ProjectService', `Cache hit for page key ${cacheKey}`);
+                const parsed = JSON.parse(cachedPage) as { projects: TProject[]; total: number };
+                Logger.info('ProjectService', `Returning ${parsed.projects?.length || 0} projects from page cache (total ${parsed.total})`);
+                return parsed;
+            }
 
-            const total = projectsAll.length;
+            // 2) try full-list cache and slice
+            const cachedAll = await Redis.getInstance().get(fullListKey);
+            if (cachedAll) {
+                const allProjects: TProject[] = JSON.parse(cachedAll);
+                const total = allProjects.length;
+                const projects = allProjects.slice(offset, offset + limit);
+                const payload = { projects, total };
 
-            const limit = params.limit ?? 20;
-            const offset = params.offset ?? 0;
+                // cache the page for a short TTL
+                await Redis.getInstance().set(cacheKey, JSON.stringify(payload), 'EX', 60);
+                Logger.info('ProjectService', `Used full-list cache ${fullListKey}, returning slice offset=${offset} limit=${limit} -> ${projects.length} items (total ${total})`);
+                // Background refresh of the full-list cache is handled by a dedicated worker
 
-            const sliced = projectsAll.slice(offset, offset + limit);
+                return payload;
+            }
 
-            return { projects: sliced, total };
+            // 3) no cache -> fetch from Airtable once, cache full list and return slice
+            // Try to limit fields returned by Airtable to reduce latency/size if Project.getAll supports it
+            const all = await Project.getAll({ /* optional: fields: ['id','name','activities','...'], pageSize: 100 */ });
+            const total = all.length;
+
+            Logger.info('ProjectService', `Fetched ${total} projects from Airtable (no cache). Slicing offset=${offset} limit=${limit}`);
+            // cache full list and the page
+            await Redis.getInstance().set(fullListKey, JSON.stringify(all), 'EX', 300);
+            const projects = all.slice(offset, offset + limit);
+            const payload = { projects, total };
+            await Redis.getInstance().set(cacheKey, JSON.stringify(payload), 'EX', 60);
+
+            Logger.info('ProjectService', `Returning ${projects.length} projects for page (total ${total})`);
+
+            return payload;
         } catch (error) {
-            Logger.error('ProjectService', 'Error fetching projects:', error);
-            throw new Error('Failed to fetch projects');
+            Logger.error('ProjectService', 'Error in getAll:', error);
+            throw error;
         }
     }
 
