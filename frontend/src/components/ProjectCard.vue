@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from "vue";
 import useUserStore from "../store/useUser";
+import ProjectStars from '../components/ProjectStars.vue';
 
 const props = defineProps({
     project: {
@@ -77,10 +78,12 @@ const dislike = async () => {
                     </div>
                 </div>
 
-                <div v-if="project.averageGrade" class="grades">
-                    <i class="pi pi-star-fill"></i>
-                    <span class="text-sm">{{ project.averageGrade.toFixed(1) }}</span>
-                </div>
+                <ProjectStars
+                    v-if="project.averageGrade"
+                    :count="project.averageGrade"
+                    :displayCount="true"
+                    :showSingleStar="true"
+                />
             </div>
         </div>
     </article>
@@ -205,16 +208,6 @@ const dislike = async () => {
 
 .action i.active.dislike {
     background-color: red;
-}
-
-.grades {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.grades i {
-    color: #ffd700;
 }
 
 @media (max-width: 640px) {

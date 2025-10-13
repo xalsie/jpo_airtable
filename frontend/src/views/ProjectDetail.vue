@@ -2,6 +2,7 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import ProjectService from "../services/projectService";
+import ProjectStars from '../components/ProjectStars.vue';
 
 const route = useRoute();
 const project = ref(null);
@@ -37,7 +38,10 @@ const dislike = async () => {
     <div v-if="project" class="container">
         <article>
             <div class="image-wrapper">
-                <img src="/assets/images/image_404_not_found.webp" alt="Image d'exemple" />
+                <img
+                    :src="Array.isArray(project.image) && project.image.length > 0 ? project.image[0].url : '/assets/images/image_404_not_found.webp'"
+                    :alt="project.title || 'Image du projet'"
+                />
             </div>
 
             <div class="content-wrapper">
@@ -55,6 +59,63 @@ const dislike = async () => {
 
                 <p class="description">{{ project.description }}</p>
 
+                <div v-if="project.averageGrade && project.averageGrade !== ''">
+                    <table>
+                        <tbody>
+                            <tr v-if="project.averageGrade">
+                                <td>Note globale</td>
+                                <td>
+                                    <ProjectStars
+                                        :count="project.averageGrade"
+                                        :displayCount="false"
+                                        :showSingleStar="false"
+                                    />
+                                </td>
+                            </tr>
+                            <tr v-if="project.averageUXUIGrade">
+                                <td>Note UI/UX</td>
+                                <td>
+                                    <ProjectStars
+                                        :count="project.averageUXUIGrade"
+                                        :displayCount="false"
+                                        :showSingleStar="false"
+                                    />
+                                </td>
+                            </tr>
+                            <tr v-if="project.averageCleanCodeGrade">
+                                <td>Note Clean Code</td>
+                                <td>
+                                    <ProjectStars
+                                        :count="project.averageCleanCodeGrade"
+                                        :displayCount="false"
+                                        :showSingleStar="false"
+                                    />
+                                </td>
+                            </tr>
+                            <tr v-if="project.averageFeaturesGrade">
+                                <td>Note Fonctionnalités</td>
+                                <td>
+                                    <ProjectStars
+                                        :count="project.averageFeaturesGrade"
+                                        :displayCount="false"
+                                        :showSingleStar="false"
+                                    />
+                                </td>
+                            </tr>
+                            <tr v-if="project.averageInnovationGrade">
+                                <td>Note Innovation</td>
+                                <td>
+                                    <ProjectStars
+                                        :count="project.averageInnovationGrade"
+                                        :displayCount="false"
+                                        :showSingleStar="false"
+                                    />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
                 <div class="actions">
                     <div class="action">
                         <i @click="like" class="pi pi-thumbs-up-fill"></i>
@@ -66,10 +127,6 @@ const dislike = async () => {
                         <span>{{ project.dislikes || 0 }}</span>
                     </div>
                 </div>
-
-                <button class="primary go-back">
-                    <router-link :to="'/'">Retour à l'accueil</router-link>
-                </button>
             </div>
         </article>
     </div>
@@ -82,8 +139,6 @@ const dislike = async () => {
 <style scoped>
 article {
     display: flex;
-    height: 400px;
-    overflow: hidden;
     align-items: stretch;
 }
 
@@ -117,7 +172,6 @@ article {
 }
 
 .description {
-    font-size: 14px;
     line-height: 1.6;
     text-align: justify;
 }
@@ -154,9 +208,5 @@ article {
     background-color: var(--dark-gray);
     border-radius: 9999px;
     cursor: pointer;
-}
-
-.go-back {
-    width: fit-content;
 }
 </style>
