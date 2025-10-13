@@ -27,6 +27,12 @@ export class Project {
         updated: z.string().optional().nullable(),
         likes: z.number().optional().readonly(),
         dislikes: z.number().optional().readonly(),
+        grades: z.array(z.number()).optional().readonly(),
+        averageGrade: z.number().optional().readonly(),
+        averageUXUIGrade: z.number().optional().readonly(),
+        averageCleanCodeGrade: z.number().optional().readonly(),
+        averageFeaturesGrade: z.number().optional().readonly(),
+        averageInnovationGrade: z.number().optional().readonly(),
     });
 
     static FieldsIds: Record<
@@ -47,7 +53,13 @@ export class Project {
         created: 'fldkk3AXKsUWAoXAj',
         updated: 'flddcVwRMHcPE1gf3',
         likes: 'fldiVFTnxx5XZNwGf',
-        dislikes: 'fldtq8PjZQCLPndPE'
+        dislikes: 'fldtq8PjZQCLPndPE',
+        grades: 'fldc4TbmOYEMUMSGx',
+        averageGrade: 'fldJwXObQ6WME7goJ',
+        averageUXUIGrade: 'fldYVYDevNf2CI9iz',
+        averageCleanCodeGrade: 'fldjXlbX5hCDfDqIU',
+        averageFeaturesGrade: 'fldJuues6Spfru3oh',
+        averageInnovationGrade: 'fldflKbo9hxFDkt9m',
     };
 
     private static FieldIdToKeyMap: Record<string, string> = Object.entries(Project.FieldsIds).reduce((acc, [key, val]) => {
