@@ -58,6 +58,14 @@ main {
     margin-top: 72px;
 }
 
+.text-sm {
+    font-size: 14px;
+}
+
+.text-xs {
+    font-size: 12px;
+}
+
 p,
 h1,
 h2,

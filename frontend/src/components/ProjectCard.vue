@@ -6,11 +6,7 @@ const props = defineProps({
     project: {
         type: Object,
         required: true,
-    },
-    showGoBack: {
-        type: Boolean,
-        default: false,
-    },
+    }
 });
 
 const emit = defineEmits(["liked", "disliked"]);
@@ -68,7 +64,7 @@ const dislike = async () => {
                             :class="['pi', 'pi-thumbs-up-fill', 'like', { 'active': userLiked }]"
                             aria-hidden="true"
                         ></i>
-                        <span class="count">{{ project.likes || 0 }}</span>
+                        <span class="text-xs">{{ project.likes || 0 }}</span>
                     </div>
 
                     <div class="action">
@@ -77,15 +73,14 @@ const dislike = async () => {
                             :class="['pi', 'pi-thumbs-down-fill', 'dislike', { 'active': userDisliked }]"
                             aria-hidden="true"
                         ></i>
-                        <span class="count">{{ project.dislikes || 0 }}</span>
+                        <span class="text-xs">{{ project.dislikes || 0 }}</span>
                     </div>
                 </div>
 
-                <button v-if="showGoBack" class="primary go-back">
-                    <router-link :to="'/'" class="go-back-link">
-                        Retour
-                    </router-link>
-                </button>
+                <div v-if="project.averageGrade" class="grades">
+                    <i class="pi pi-star-fill"></i>
+                    <span class="text-sm">{{ project.averageGrade.toFixed(1) }}</span>
+                </div>
             </div>
         </div>
     </article>
@@ -212,27 +207,14 @@ const dislike = async () => {
     background-color: red;
 }
 
-.count {
-    font-size: 12px;
+.grades {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.go-back {
-    background: transparent;
-    border: none;
-    padding: 6px 10px;
-    cursor: pointer;
-    border-radius: 8px;
-}
-
-.go-back-link {
-    color: var(--primary, #0b69ff);
-    text-decoration: none;
-    font-size: 13px;
-}
-
-.go-back:focus,
-.go-back:active {
-    outline: none;
+.grades i {
+    color: #ffd700;
 }
 
 @media (max-width: 640px) {
