@@ -47,7 +47,12 @@ export const useProjectStore = defineStore(
         async function likeProject(projectId, userLiked) {
             loading.value = true;
             error.value = null;
-            ProjectService.likeProject(projectId);
+            const likeAction = await ProjectService.likeProject(projectId);
+            if (likeAction?.success === false) {
+                loading.value = false;
+                return;
+            }
+
             const list = projects.value?.projects || projects.value || [];
             const index = list.findIndex(p => p.id === projectId);
             if (index !== -1) {
@@ -74,7 +79,12 @@ export const useProjectStore = defineStore(
         async function dislikeProject(projectId, userDisliked) {
             loading.value = true;
             error.value = null;
-            ProjectService.dislikeProject(projectId);
+            const dislikeAction = await ProjectService.dislikeProject(projectId);
+            if (dislikeAction?.success === false) {
+                loading.value = false;
+                return;
+            }
+
             const list = projects.value?.projects || projects.value || [];
             const index = list.findIndex(p => p.id === projectId);
             if (index !== -1) {

@@ -21,25 +21,16 @@ const load = async (page = 1) => {
 onMounted(() => load(1));
 
 const search = async () => {
-    // TODO: Add endpoint in back-end.
     console.log("Searching for:", searchValue.value);
-    // projects.value = await projectStore.searchProjects(searchValue.value);
-    // projects.value = await projectStore.getProjects();
 };
 const loadAll = load;
 
 const onLiked = async (id, userLiked) => {
-    // TODO: Add endpoint in back-end.
-    console.log("Liked project with id:", id, userLiked);
     await projectStore.likeProject(id, userLiked);
-    // await load();
 };
 
 const onDisliked = async (id, userDisliked) => {
-    // TODO: Add endpoint in back-end.
-    console.log("Disliked project with id:", id, userDisliked);
     await projectStore.dislikeProject(id, userDisliked);
-    // await load();
 };
 </script>
 
