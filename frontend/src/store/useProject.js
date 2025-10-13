@@ -47,64 +47,82 @@ export const useProjectStore = defineStore(
         async function likeProject(projectId, userLiked) {
             loading.value = true;
             error.value = null;
-            const likeAction = await ProjectService.likeProject(projectId);
-            if (likeAction?.success === false) {
+
+            const result = await ProjectService.likeProject(projectId);
+            if (!result?.success) {
                 loading.value = false;
                 return;
             }
 
             const list = projects.value?.projects || projects.value || [];
-            const index = list.findIndex(p => p.id === projectId);
-            if (index !== -1) {
-                list[index].likes = list[index].likes || 0;
-                list[index].dislikes = list[index].dislikes || 0;
+            const project = list.find(p => p.id === projectId);
+            if (!project) {
+                loading.value = false;
+                return;
+            }
 
-                if (userLiked) {
-                    list[index].likes = Math.max(0, list[index].likes - 1);
-                    list[index].activities = list[index].activities.filter(a => !(a.type === 'like' && (Array.isArray(a.author) ? a.author.includes(userId.value) : a.author === userId.value)));
-                } else {
-                    list[index].likes += 1;
-                    list[index].activities.push({ id: `local-${Date.now()}`, type: 'like', author: [userId.value] });
+            project.likes = project.likes || 0;
+            project.dislikes = project.dislikes || 0;
+            project.activities = project.activities || [];
 
-                    const hadDislike = list[index].activities.some(a => a.type === 'dislike' && (Array.isArray(a.author) ? a.author.includes(userId.value) : a.author === userId.value));
-                    if (hadDislike) {
-                        list[index].activities = list[index].activities.filter(a => !(a.type === 'dislike' && (Array.isArray(a.author) ? a.author.includes(userId.value) : a.author === userId.value)));
-                        list[index].dislikes = Math.max(0, list[index].dislikes - 1);
-                    }
+            if (userLiked) {
+                project.likes = Math.max(0, project.likes - 1);
+                project.activities = project.activities.filter(
+                    a => !(a.type === 'like' && [a.author].flat().includes(userId.value))
+                );
+            } else {
+                project.likes += 1;
+                project.activities.push({ id: `local-${Date.now()}`, type: 'like', author: [userId.value] });
+
+                if (project.activities.some(a => a.type === 'dislike' && [a.author].flat().includes(userId.value))) {
+                    project.activities = project.activities.filter(
+                        a => !(a.type === 'dislike' && [a.author].flat().includes(userId.value))
+                    );
+                    project.dislikes = Math.max(0, project.dislikes - 1);
                 }
             }
+
             loading.value = false;
         }
 
         async function dislikeProject(projectId, userDisliked) {
             loading.value = true;
             error.value = null;
-            const dislikeAction = await ProjectService.dislikeProject(projectId);
-            if (dislikeAction?.success === false) {
+
+            const result = await ProjectService.dislikeProject(projectId);
+            if (!result?.success) {
                 loading.value = false;
                 return;
             }
 
             const list = projects.value?.projects || projects.value || [];
-            const index = list.findIndex(p => p.id === projectId);
-            if (index !== -1) {
-                list[index].dislikes = list[index].dislikes || 0;
-                list[index].likes = list[index].likes || 0;
+            const project = list.find(p => p.id === projectId);
+            if (!project) {
+                loading.value = false;
+                return;
+            }
 
-                if (userDisliked) {
-                    list[index].dislikes = Math.max(0, list[index].dislikes - 1);
-                    list[index].activities = list[index].activities.filter(a => !(a.type === 'dislike' && (Array.isArray(a.author) ? a.author.includes(userId.value) : a.author === userId.value)));
-                } else {
-                    list[index].dislikes += 1;
-                    list[index].activities.push({ id: `local-${Date.now()}`, type: 'dislike', author: [userId.value] });
+            project.dislikes = project.dislikes || 0;
+            project.likes = project.likes || 0;
+            project.activities = project.activities || [];
 
-                    const hadLike = list[index].activities.some(a => a.type === 'like' && (Array.isArray(a.author) ? a.author.includes(userId.value) : a.author === userId.value));
-                    if (hadLike) {
-                        list[index].activities = list[index].activities.filter(a => !(a.type === 'like' && (Array.isArray(a.author) ? a.author.includes(userId.value) : a.author === userId.value)));
-                        list[index].likes = Math.max(0, list[index].likes - 1);
-                    }
+            if (userDisliked) {
+                project.dislikes = Math.max(0, project.dislikes - 1);
+                project.activities = project.activities.filter(
+                    a => !(a.type === 'dislike' && [a.author].flat().includes(userId.value))
+                );
+            } else {
+                project.dislikes += 1;
+                project.activities.push({ id: `local-${Date.now()}`, type: 'dislike', author: [userId.value] });
+
+                if (project.activities.some(a => a.type === 'like' && [a.author].flat().includes(userId.value))) {
+                    project.activities = project.activities.filter(
+                        a => !(a.type === 'like' && [a.author].flat().includes(userId.value))
+                    );
+                    project.likes = Math.max(0, project.likes - 1);
                 }
             }
+
             loading.value = false;
         }
 
