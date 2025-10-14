@@ -3,15 +3,15 @@ import { Project } from '../infrastructure/airtable/models';
 import Logger from '../utils/logger';
 
 type WorkerOptions = {
-    intervalMs?: number; // refresh interval
-    ttlSeconds?: number; // cache ttl for full list
+    intervalMs?: number;
+    ttlSeconds?: number;
 };
 
 let timer: NodeJS.Timeout | null = null;
 
 export const startProjectCacheWorker = (opts: WorkerOptions = {}) => {
-    const intervalMs = opts.intervalMs ?? 1000 * 60 * 5; // default 5 minutes
-    const ttlSeconds = opts.ttlSeconds ?? 300; // default 5 minutes
+    const intervalMs = opts.intervalMs ?? 1000 * 60 * 5;
+    const ttlSeconds = opts.ttlSeconds ?? 300;
 
     if (timer) {
         Logger.info('ProjectCacheWorker', 'Worker already running');
@@ -31,7 +31,6 @@ export const startProjectCacheWorker = (opts: WorkerOptions = {}) => {
         }
     };
 
-    // run immediately then schedule
     void run();
     timer = setInterval(run, intervalMs) as unknown as NodeJS.Timeout;
 };
@@ -44,7 +43,20 @@ export const stopProjectCacheWorker = () => {
     }
 };
 
+export const resetProjectCache = async () => {
+    try {
+        stopProjectCacheWorker();
+        await Redis.getInstance().flushall();
+        startProjectCacheWorker();
+
+        Logger.info('ProjectCacheWorker', 'Project cache reset');
+    } catch (err) {
+        Logger.error('ProjectCacheWorker', 'Failed to reset project cache', err);
+    }
+};
+
 export default {
     start: startProjectCacheWorker,
     stop: stopProjectCacheWorker,
+    reset: resetProjectCache,
 };
