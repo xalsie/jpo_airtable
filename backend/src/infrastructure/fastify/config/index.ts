@@ -3,9 +3,27 @@ import fastifyHelmet from '@fastify/helmet';
 import fastifyCors from '@fastify/cors';
 import fastifyCompress from '@fastify/compress';
 import fastifyRateLimit from '@fastify/rate-limit';
-import fastifyCaching from '@fastify/caching';
 import { env } from '../../../config';
 import Logger from '../../../utils/logger';
+
+import fastifyCaching from '@fastify/caching'
+import fastifyRedis from '@fastify/redis'
+// @ts-ignore
+import abstractCache from 'abstract-cache'
+import IORedis from 'ioredis'
+
+const redis = new IORedis({
+	host: env.REDIS_HOST,
+})
+
+const client = abstractCache({
+	driver: {
+		name: 'abstract-cache-redis',
+		options: {
+			client: redis
+		}
+	}
+})
 
 export const configureFastify = async (app: FastifyInstance) => {
     await app.register(fastifyHelmet);
@@ -36,10 +54,8 @@ export const configureFastify = async (app: FastifyInstance) => {
     });
 
     try {
-        await app.register(fastifyCaching, {
-            privacy: fastifyCaching.privacy.NOCACHE,
-            expiresIn: 300
-        });
+        app.register(fastifyRedis, { client: redis })
+        app.register(fastifyCaching, { cache: client })
     } catch (err) {
         Logger.error('FastifyHooks', 'Failed to register caching plugin', err);
     }
