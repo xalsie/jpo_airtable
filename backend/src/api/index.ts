@@ -12,6 +12,7 @@ import { IAuth } from "../services/auth.service";
 import { IInteraction } from "../services/interaction.service";
 import { IProject } from "../services/project.service";
 import { IUser } from "../services/user.service";
+import { IWebhook } from "../services/webhook.service";
 
 
 export type Config = {
@@ -24,6 +25,7 @@ export type Services = {
     interaction: IInteraction;
     project: IProject;
     user: IUser;
+    webhook: IWebhook;
 };
 
 export class FastifyApi {
