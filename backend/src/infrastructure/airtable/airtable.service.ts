@@ -63,11 +63,19 @@ export class AirtableService {
 
   async getById(id: string): Promise<{ [key: string]: any }> {
     try {
-      const record = await this.base(this.tableName).find(id);
-      return {
-        id: record.id,
-        ...record.fields
-      };
+      const record = await this.base(this.tableName).select({
+        returnFieldsByFieldId: true
+      }).all();
+
+      const find = record.find(r => r.id === id);
+      if (find) {
+        return {
+          id: find.id,
+          ...find.fields
+        };
+      }
+
+      return {};
     } catch (error: Error | any) {
       throw new Error(`Failed to fetch record ${id}: ${error.message}`);
     }
