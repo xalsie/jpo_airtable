@@ -6,24 +6,12 @@ import ProjectCard from "../components/ProjectCard.vue";
 const projectStore = useProjectStore();
 
 const projects = ref([]);
-const test = ref([]);
-const searchValue = ref("");
 
 const load = async (page = 1) => {
     const res = await projectStore.getProjects(page, projectStore.meta?.limit || 9);
-    if (res.success) {
-        projects.value = projectStore.projects;
-        test.value = projects.value || [];
-    } else {
-        test.value = [];
-    }
+    if (res.success) projects.value = projectStore.projects;
 };
-onMounted(() => load(1));
-
-const search = async () => {
-    console.log("Searching for:", searchValue.value);
-};
-const loadAll = load;
+onMounted(() => load());
 
 const onLiked = async (id, userLiked) => {
     await projectStore.likeProject(id, userLiked);
@@ -36,21 +24,21 @@ const onDisliked = async (id, userDisliked) => {
 
 <template>
     <div class="container">
-        <div class="search">
+        <!-- <div class="search">
             <input v-model="searchValue" placeholder="Recherche par mot-clé..." />
             <button @click="search">
                 <i class="pi pi-search"></i>
             </button>
-            <button @click="loadAll">
+            <button @click="resetSearch">
                 <i class="pi pi-replay"></i>
             </button>
-        </div>
+        </div> -->
 
-        <div v-if="test.length === 0">Aucun projet enregistré.</div>
+        <div v-if="projects.length === 0">Aucun projet enregistré.</div>
 
         <div v-else class="projects">
             <ProjectCard
-                v-for="p in test"
+                v-for="p in projects"
                 :key="p.id"
                 :project="p"
                 @liked="onLiked"
