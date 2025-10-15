@@ -97,7 +97,7 @@ const dislike = async () => {
     display: flex;
     flex-direction: column;
     width: 100%;
-    background: var(--card-bg, #fff);
+    background: var(--white);
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 6px 18px rgba(28, 40, 50, 0.06);
@@ -108,7 +108,7 @@ const dislike = async () => {
     width: 100%;
     height: 240px;
     overflow: hidden;
-    background: #f2f2f2;
+    background: var(--lighter-gray);
 }
 
 .image-wrapper img {
@@ -137,7 +137,7 @@ const dislike = async () => {
     padding: 4px 8px;
     font-size: 11px;
     text-transform: uppercase;
-    border: 1px solid var(--dark-gray, #d2d2d2);
+    border: 1px solid var(--dark-gray);
     border-radius: 6px;
     color: var(--text, #111);
     line-height: 1;
@@ -154,14 +154,6 @@ const dislike = async () => {
     width: 100%;
     color: inherit;
     text-decoration: none;
-}
-
-.description {
-    font-size: 13px;
-    line-height: 1.4;
-    color: var(--muted, #55606a);
-    margin: 0;
-    text-align: justify;
 }
 
 .footer {
@@ -187,24 +179,24 @@ const dislike = async () => {
 .action i {
     padding: 6px;
     font-size: 13px;
-    color: var(--dark-gray, #30343a);
+    color: var(--dark-gray);
     transition: color 0.3s ease-in-out;
 }
 
 .action:hover i.like {
-    color: green;
+    color: var(--green);
 }
 
 .action:hover i.dislike {
-    color: red;
+    color: var(--red);
 }
 
 .action.active i.like {
-    color: green;
+    color: var(--green);
 }
 
 .action.active i.dislike {
-    color: red;
+    color: var(--red);
 }
 
 @media (max-width: 640px) {

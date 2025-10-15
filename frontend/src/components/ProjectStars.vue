@@ -27,9 +27,12 @@ const starsToShow = computed(() => {
 
 const displayValue = computed(() => {
     if (!props.displayCount) return '';
-    if (!props.displayCount) return '';
     if (props.count > 0) {
-        return `${props.count.toFixed(1).replace('.', ',')} étoiles`;
+        if (Number.isInteger(props.count)) {
+            return `${props.count}/10`;
+        } else {
+            return `${props.count.toFixed(1).replace('.', ',')}/10`;
+        }
     } else {
         return 'Pas encore noté';
     }
@@ -66,7 +69,7 @@ const displayValue = computed(() => {
     gap: 4px;
 }
 
-.stars-container i {
+.card .stars-container i {
     position: relative;
     top: -2px;
 }

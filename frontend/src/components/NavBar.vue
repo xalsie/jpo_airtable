@@ -15,6 +15,10 @@ const logout = () => {
 
 <template>
     <nav class="navbar">
+        <router-link to="/">
+            <h2>JPO Airtable</h2>
+        </router-link>
+
         <div class="navbar-content">
             <template v-if="isLogged">
                 <span>Bonjour, {{ userStore.data.firstname }} !</span>
@@ -22,6 +26,7 @@ const logout = () => {
                 <router-link v-if="isLogged" to="/profile">Modifier mon profil</router-link>
                 <a href="#" @click.prevent="logout">Déconnexion</a>
             </template>
+
             <template v-else>
                 <router-link to="/login">Connexion</router-link>
                 <router-link to="/register">Inscription</router-link>
@@ -42,18 +47,18 @@ const logout = () => {
     height: 64px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
 }
 
 .navbar-content {
-    width: 100%;
     display: flex;
     align-items: center;
     justify-content: flex-end;
     gap: 36px;
 }
 
-.navbar a,
-.navbar .router-link-active {
+.navbar-content a,
+.navbar-content .router-link-active {
     text-transform: uppercase;
     font-size: 14px;
     text-decoration: none;

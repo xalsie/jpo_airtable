@@ -1,8 +1,16 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import { useUserStore } from '../store/useUser';
+import { useProjectStore } from "../store/useProject";
 import ProjectService from "../services/projectService";
 import ProjectStars from '../components/ProjectStars.vue';
+import ActionButton from '../components/ActionButton.vue';
+
+const userStore = useUserStore();
+const projectStore = useProjectStore();
+
+const userId = computed(() => userStore.data?.id || null);
 
 const route = useRoute();
 const project = ref(null);
@@ -21,16 +29,12 @@ const load = async () => {
 };
 onMounted(load);
 
-const like = async () => {
-    if (!project.value) return;
-    await ProjectService.likeProject(project.value.id);
-    await load();
+const onLiked = async (id, userLiked) => {
+    await projectStore.likeProject(id, userLiked);
 };
 
-const dislike = async () => {
-    if (!project.value) return;
-    await ProjectService.dislikeProject(project.value.id);
-    await load();
+const onDisliked = async (id, userDisliked) => {
+    await projectStore.dislikeProject(id, userDisliked);
 };
 </script>
 
@@ -51,27 +55,18 @@ const dislike = async () => {
                     </span>
                 </div>
 
-                <h1 class="title">
-                    <router-link :to="'/project/' + project.id">
-                        {{ project.title }}
-                    </router-link>
-                </h1>
-
-                <p class="description">{{ project.description }}</p>
+                <div class="header">
+                    <h1 class="title">{{ project.title }}</h1>
+                    <ProjectStars
+                        :count="project.averageGrade"
+                        :displayCount="false"
+                        :showSingleStar="false"
+                    />
+                </div>
 
                 <div v-if="project.averageGrade && project.averageGrade !== ''">
                     <table>
                         <tbody>
-                            <tr v-if="project.averageGrade">
-                                <td>Note globale</td>
-                                <td>
-                                    <ProjectStars
-                                        :count="project.averageGrade"
-                                        :displayCount="false"
-                                        :showSingleStar="false"
-                                    />
-                                </td>
-                            </tr>
                             <tr v-if="project.averageUXUIGrade">
                                 <td>Note UI/UX</td>
                                 <td>
@@ -116,16 +111,22 @@ const dislike = async () => {
                     </table>
                 </div>
 
-                <div class="actions">
-                    <div class="action">
-                        <i @click="like" class="pi pi-thumbs-up-fill"></i>
-                        <span>{{ project.likes || 0 }}</span>
-                    </div>
+                <p class="description">{{ project.description }}</p>
 
-                    <div class="action">
-                        <i @click="dislike" class="pi pi-thumbs-down-fill"></i>
-                        <span>{{ project.dislikes || 0 }}</span>
-                    </div>
+                <div class="actions">
+                    <ActionButton
+                        type="like"
+                        :project="project"
+                        :countToDisplay="project.likes"
+                        @clicked="onLiked"
+                    />
+
+                    <ActionButton
+                        type="dislike"
+                        :project="project"
+                        :countToDisplay="project.dislikes"
+                        @clicked="onDisliked"
+                    />
                 </div>
             </div>
         </article>
@@ -167,12 +168,63 @@ article {
     gap: 20px;
 }
 
+.header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
 .title {
     font-family: "Fraunces";
 }
 
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 14px;
+  border-bottom: 1px solid var(--dark-gray);
+}
+
+th {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border-bottom: 2px solid var(--dark-gray);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+td {
+  color: var(--darker-gray);
+  vertical-align: middle;
+}
+
+tr {
+  transition: background 0.15s;
+}
+
+tr:hover {
+  background: #f6f6f6;
+}
+
+caption {
+  caption-side: bottom;
+  font-size: 13px;
+  color: #888;
+  padding: 8px 0 0 0;
+  letter-spacing: 0.01em;
+}
+
 .description {
-    line-height: 1.6;
+    line-height: 1.5;
     text-align: justify;
 }
 
@@ -192,21 +244,7 @@ article {
 .actions {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 12px;
 }
 
-.action {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.action i {
-    padding: 8px;
-    font-size: 14px;
-    color: var(--white);
-    background-color: var(--dark-gray);
-    border-radius: 9999px;
-    cursor: pointer;
-}
 </style>

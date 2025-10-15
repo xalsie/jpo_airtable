@@ -82,7 +82,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="container space center">
+    <div class="container center">
         <div class="card">
             <h2 class="title">Créer un compte</h2>
             <form class="form" @submit.prevent="submit">
