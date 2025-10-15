@@ -1,6 +1,6 @@
 <script setup>
-import { computed } from "vue";
-import useUserStore from "../store/useUser";
+import { computed } from 'vue';
+import useUserStore from '../store/useUser';
 import ProjectStars from '../components/ProjectStars.vue';
 
 const props = defineProps({
@@ -16,26 +16,23 @@ const userStore = useUserStore();
 
 const userId = computed(() => userStore.data?.id || null);
 
-const userLiked = computed(() => {
-    if (!props.project || !props.project.activities || !userId.value) return false;
-    return props.project.activities.some(
-        (a) => a.type === 'like' && a.author.includes(userId.value)
+function hasUserActivity(type) {
+    return !!props.project?.activities?.some(
+        activity =>
+            activity.type === type &&
+            activity.author.includes(userId.value)
     );
-});
+}
 
-const userDisliked = computed(() => {
-    if (!props.project || !props.project.activities || !userId.value) return false;
-    return props.project.activities.some(
-        (a) => a.type === 'dislike' && a.author.includes(userId.value)
-    );
-});
+const userLiked = computed(() => hasUserActivity('like'));
+const userDisliked = computed(() => hasUserActivity('dislike'));
 
 const like = async () => {
-    emit("liked", props.project.id, userLiked.value);
+    emit('liked', props.project.id, userLiked.value);
 };
 
 const dislike = async () => {
-    emit("disliked", props.project.id, userDisliked.value);
+    emit('disliked', props.project.id, userDisliked.value);
 };
 </script>
 
@@ -200,11 +197,11 @@ const dislike = async () => {
     color: red;
 }
 
-.action i.active.like {
+.action.active i.like {
     color: green;
 }
 
-.action i.active.dislike {
+.action.active i.dislike {
     color: red;
 }
 
