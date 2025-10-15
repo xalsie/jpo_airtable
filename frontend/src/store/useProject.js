@@ -28,6 +28,25 @@ export const useProjectStore = defineStore(
             return res;
         }
 
+        async function getProjectById(projectId) {
+            loading.value = true;
+            error.value = null;
+            const res = this.projects.find(p => p.id === projectId);
+            if (res) {
+                loading.value = false;
+                return { success: true, project: res };
+            }
+            const result = await ProjectService.getProjectById(projectId);
+            if (result.success) {
+                loading.value = false;
+                return result;
+            } else {
+                error.value = result.message || "Erreur lors de la récupération du projet";
+                loading.value = false;
+                return result;
+            }
+        }
+
         function setPage(newPage) {
             const limit = meta.value.limit || 9;
             return getProjects(newPage, limit);
@@ -132,6 +151,7 @@ export const useProjectStore = defineStore(
             error,
             meta,
             getProjects,
+            getProjectById,
             setPage,
             nextPage,
             prevPage,

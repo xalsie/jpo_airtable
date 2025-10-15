@@ -3,14 +3,10 @@ import { computed, ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useUserStore } from '../store/useUser';
 import { useProjectStore } from "../store/useProject";
-import ProjectService from "../services/projectService";
 import ProjectStars from '../components/ProjectStars.vue';
 import ActionButton from '../components/ActionButton.vue';
 
-const userStore = useUserStore();
 const projectStore = useProjectStore();
-
-const userId = computed(() => userStore.data?.id || null);
 
 const route = useRoute();
 const project = ref(null);
@@ -19,7 +15,7 @@ const loading = ref(false);
 const load = async () => {
     loading.value = true;
     const id = route.params.id;
-    const res = await ProjectService.getProjectById(id);
+    const res = await projectStore.getProjectById(id);
     if (res.success) {
         project.value = res.project;
     } else {
@@ -58,6 +54,7 @@ const onDisliked = async (id, userDisliked) => {
                 <div class="header">
                     <h1 class="title">{{ project.title }}</h1>
                     <ProjectStars
+                        v-if="project.averageGrade"
                         :count="project.averageGrade"
                         :displayCount="false"
                         :showSingleStar="false"
