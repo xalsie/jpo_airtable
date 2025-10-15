@@ -7,10 +7,7 @@ import NavBar from "./components/NavBar.vue";
 <template>
     <div id="root">
         <NavBar />
-
-        <main>
-            <RouterView />
-        </main>
+        <main><RouterView /></main>
     </div>
 </template>
 
@@ -20,10 +17,15 @@ import NavBar from "./components/NavBar.vue";
 
 :root {
     --white: #ffffff;
+    --lighter-gray: #f9f9f9;
     --light-gray: #f0f0f0;
     --gray: #e8e8e8;
     --dark-gray: #cccccc;
+    --darker-gray: #303030;
     --black: #000000;
+
+    --red: #cc3525;
+    --green: #22ad5c;
 }
 
 body {
@@ -33,29 +35,22 @@ body {
     font-style: normal;
 }
 
-#root {
+main {
     max-width: 1200px;
     margin: 0 auto;
     position: relative;
 }
 
-main {
-    padding-top: 36px;
-}
-
 .container {
     display: flex;
     flex-direction: column;
-    gap: 50px;
+    gap: 48px;
+    padding: 32px 0;
 }
 
 .center {
     align-items: center;
     gap: 20px;
-}
-
-.space {
-    margin-top: 72px;
 }
 
 .text-sm {
@@ -119,23 +114,6 @@ button.secondary:hover {
     background-color: var(--gray);
 }
 
-nav {
-    display: flex;
-    align-items: center;
-    justify-content: end;
-    gap: 36px;
-    padding: 42px 0;
-
-    position: absolute;
-    top: 0;
-    right: 0;
-}
-
-nav a {
-    text-transform: uppercase;
-    font-size: 14px;
-}
-
 .form {
     display: flex;
     flex-direction: column;
@@ -154,52 +132,5 @@ nav a {
 
 .form input:focus {
     border: 1px solid var(--dark-gray);
-}
-
-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-th, td {
-  padding: 10px 14px;
-  text-align: left;
-  font-size: 14px;
-  border-bottom: 1px solid var(--dark-gray);
-}
-
-th {
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  border-bottom: 2px solid var(--dark-gray);
-}
-
-tr:last-child td {
-  border-bottom: none;
-}
-
-td {
-  font-weight: 400;
-  color: #222;
-  vertical-align: middle;
-}
-
-tr {
-  transition: background 0.15s;
-}
-
-tr:hover {
-  background: #f6f6f6;
-}
-
-caption {
-  caption-side: bottom;
-  font-size: 13px;
-  color: #888;
-  padding: 8px 0 0 0;
-  letter-spacing: 0.01em;
 }
 </style>

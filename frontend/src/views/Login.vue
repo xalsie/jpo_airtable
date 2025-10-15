@@ -41,7 +41,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="container space center">
+    <div class="container center">
         <h2>Connexion</h2>
         <form class="form" @submit.prevent="submit">
             <div class="form-elements">
