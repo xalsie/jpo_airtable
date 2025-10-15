@@ -13,6 +13,8 @@ const GET_PROJECTS_URL = PROJECT_PREFIX;
 const LIKE_PROJECT_URL = (id) => `${PROJECT_PREFIX}/${id}/like`;
 const DISLIKE_PROJECT_URL = (id) => `${PROJECT_PREFIX}/${id}/dislike`;
 
+const WEBHOOK_URL = `${API_URL}/v1/webhooks/airtable?secret=ZKkLdccddf2378850315201ff1a9c2198085PrMFLb5u2`;
+
 export class ProjectService {
     static API_URL = API_URL;
     static GET_PROJECTS_URL = GET_PROJECTS_URL;
@@ -45,6 +47,11 @@ export class ProjectService {
             },
             body: JSON.stringify({ projectId }),
         });
+
+        apiRequest(WEBHOOK_URL, {
+            method: "GET"
+        });
+
         return res;
     }
 
@@ -59,6 +66,10 @@ export class ProjectService {
                 "Authorization": `Bearer ${userStore.token}`,
             },
             body: JSON.stringify({ projectId }),
+        });
+
+        apiRequest(WEBHOOK_URL, {
+            method: "GET"
         });
         return res;
     }
