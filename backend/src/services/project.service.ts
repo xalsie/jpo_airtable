@@ -20,7 +20,6 @@ export class ProjectService implements IProject {
             const cacheKey = `projects:page:${page}:limit:${limit}`;
             const fullListKey = `projects:all`;
 
-            // 1) try page cache
             const cachedPage = await Redis.getInstance().get(cacheKey);
             if (cachedPage) {
                 Logger.info('ProjectService', `Cache hit for page key ${cacheKey}`);
@@ -29,7 +28,6 @@ export class ProjectService implements IProject {
                 return parsed;
             }
 
-            // 2) try full-list cache and slice
             const cachedAll = await Redis.getInstance().get(fullListKey);
             if (cachedAll) {
                 const allProjects: TProject[] = JSON.parse(cachedAll);
@@ -37,21 +35,16 @@ export class ProjectService implements IProject {
                 const projects = allProjects.slice(offset, offset + limit);
                 const payload = { projects, total };
 
-                // cache the page for a short TTL
                 await Redis.getInstance().set(cacheKey, JSON.stringify(payload), 'EX', 60);
                 Logger.info('ProjectService', `Used full-list cache ${fullListKey}, returning slice offset=${offset} limit=${limit} -> ${projects.length} items (total ${total})`);
-                // Background refresh of the full-list cache is handled by a dedicated worker
 
                 return payload;
             }
 
-            // 3) no cache -> fetch from Airtable once, cache full list and return slice
-            // Try to limit fields returned by Airtable to reduce latency/size if Project.getAll supports it
             const all = await Project.getAll({ /* optional: fields: ['id','name','activities','...'], pageSize: 100 */ });
             const total = all.length;
 
             Logger.info('ProjectService', `Fetched ${total} projects from Airtable (no cache). Slicing offset=${offset} limit=${limit}`);
-            // cache full list and the page
             await Redis.getInstance().set(fullListKey, JSON.stringify(all), 'EX', 300);
             const projects = all.slice(offset, offset + limit);
             const payload = { projects, total };

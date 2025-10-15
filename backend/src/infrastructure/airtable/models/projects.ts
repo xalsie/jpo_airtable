@@ -69,7 +69,18 @@ export class Project {
 
     static async getAll({ view, fields, params }: { view?: string; fields?: string[]; params?: { limit?: number; offset?: number; maxRecords?: number; pageSize?: number } }): Promise<TProject[]> {
         const records = await this.airtableService.getAll({ view, fields, ...params });
-        return records.map(r => AirtableService.remapRecordFields(r, this.FieldIdToKeyMap));
+
+        const interactions = await Interactions.getAll({});
+
+        const projectsWithActivities = records.map(project => {
+            const projectInteractions = interactions.filter(i => i.project?.includes(project.id));
+            return {
+                ...project,
+                activities: projectInteractions
+            };
+        });
+
+        return projectsWithActivities.map(r => AirtableService.remapRecordFields(r, this.FieldIdToKeyMap));
     }
 
     static async getById(id: string): Promise<TProject | null> {
