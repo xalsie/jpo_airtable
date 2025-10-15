@@ -18,12 +18,16 @@ const userId = computed(() => userStore.data?.id || null);
 
 const userLiked = computed(() => {
     if (!props.project || !props.project.activities || !userId.value) return false;
-    return props.project.activities.some((a) => a.type === 'like' && (Array.isArray(a.author) ? a.author.includes(userId.value) : a.author === userId.value));
+    return props.project.activities.some(
+        (a) => a.type === 'like' && a.author.includes(userId.value)
+    );
 });
 
 const userDisliked = computed(() => {
     if (!props.project || !props.project.activities || !userId.value) return false;
-    return props.project.activities.some((a) => a.type === 'dislike' && (Array.isArray(a.author) ? a.author.includes(userId.value) : a.author === userId.value));
+    return props.project.activities.some(
+        (a) => a.type === 'dislike' && a.author.includes(userId.value)
+    );
 });
 
 const like = async () => {
