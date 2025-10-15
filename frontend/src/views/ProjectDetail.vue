@@ -45,8 +45,8 @@ const dislike = async () => {
             </div>
 
             <div class="content-wrapper">
-                <div class="tags">
-                    <span v-for="t in project.tags || []" :key="t" class="tag">
+                <div class="keywords">
+                    <span v-for="t in project.keywords || []" :key="t" class="keyword">
                         {{ t }}
                     </span>
                 </div>
@@ -176,12 +176,12 @@ article {
     text-align: justify;
 }
 
-.tags {
+.keywords {
     display: flex;
     gap: 20px;
 }
 
-.tag {
+.keyword {
     padding: 6px 10px;
     font-size: 12px;
     text-transform: uppercase;

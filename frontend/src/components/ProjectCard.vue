@@ -49,8 +49,8 @@ const dislike = async () => {
         </div>
 
         <div class="content-wrapper">
-            <div class="tags">
-                <span v-for="t in project.tags" :key="t" class="tag">
+            <div class="keywords">
+                <span v-for="t in project.keywords" :key="t" class="keyword">
                     {{ t }}
                 </span>
             </div>
@@ -62,32 +62,32 @@ const dislike = async () => {
             </h2>
 
             <div class="footer">
-                <div class="actions">
-                    <div class="action">
-                        <i
-                            @click="like"
-                            :class="['pi', 'pi-thumbs-up-fill', 'like', { 'active': userLiked }]"
-                            aria-hidden="true"
-                        ></i>
-                        <span class="text-xs">{{ project.likes || 0 }}</span>
-                    </div>
-
-                    <div class="action">
-                        <i
-                            @click="dislike"
-                            :class="['pi', 'pi-thumbs-down-fill', 'dislike', { 'active': userDisliked }]"
-                            aria-hidden="true"
-                        ></i>
-                        <span class="text-xs">{{ project.dislikes || 0 }}</span>
-                    </div>
+                <div>
+                    <ProjectStars
+                        v-if="project.averageGrade"
+                        :count="project.averageGrade"
+                        :displayCount="true"
+                        :showSingleStar="true"
+                    />
                 </div>
 
-                <ProjectStars
-                    v-if="project.averageGrade"
-                    :count="project.averageGrade"
-                    :displayCount="true"
-                    :showSingleStar="true"
-                />
+                <div class="actions">
+                    <div
+                        :class="['action', { 'active': userLiked }]"
+                        @click="like"
+                    >
+                        <i class="pi pi-thumbs-up-fill like" aria-hidden="true"></i>
+                        <span class="text-sm">{{ project.likes || 0 }}</span>
+                    </div>
+
+                    <div
+                        :class="['action', { 'active': userDisliked }]"
+                        @click="dislike"
+                    >
+                        <i class="pi pi-thumbs-down-fill dislike" aria-hidden="true"></i>
+                        <span class="text-sm">{{ project.dislikes || 0 }}</span>
+                    </div>
+                </div>
             </div>
         </div>
     </article>
@@ -128,19 +128,18 @@ const dislike = async () => {
     gap: 10px;
 }
 
-.tags {
+.keywords {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
 }
 
-.tag {
+.keyword {
     padding: 4px 8px;
     font-size: 11px;
     text-transform: uppercase;
     border: 1px solid var(--dark-gray, #d2d2d2);
     border-radius: 6px;
-    background: var(--tag-bg, transparent);
     color: var(--text, #111);
     line-height: 1;
 }
@@ -176,42 +175,37 @@ const dislike = async () => {
 .actions {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
 }
 
 .action {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 2px;
+    cursor: pointer;
 }
 
 .action i {
     padding: 6px;
     font-size: 13px;
-    color: var(--white, #fff);
-    background-color: var(--dark-gray, #30343a);
-    border-radius: 9999px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.3s ease-in-out;
+    color: var(--dark-gray, #30343a);
+    transition: color 0.3s ease-in-out;
 }
 
-.action i.like:hover {
-    background-color: green;
+.action:hover i.like {
+    color: green;
 }
 
-.action i.dislike:hover {
-    background-color: red;
+.action:hover i.dislike {
+    color: red;
 }
 
 .action i.active.like {
-    background-color: green;
+    color: green;
 }
 
 .action i.active.dislike {
-    background-color: red;
+    color: red;
 }
 
 @media (max-width: 640px) {
@@ -223,7 +217,7 @@ const dislike = async () => {
         font-size: 15px;
     }
 
-    .tag {
+    .keyword {
         font-size: 10px;
         padding: 3px 6px;
     }
