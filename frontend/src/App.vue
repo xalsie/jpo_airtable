@@ -7,10 +7,7 @@ import NavBar from "./components/NavBar.vue";
 <template>
     <div id="root">
         <NavBar />
-
-        <main>
-            <RouterView />
-        </main>
+        <main><RouterView /></main>
     </div>
 </template>
 
@@ -33,14 +30,10 @@ body {
     font-style: normal;
 }
 
-#root {
+main {
     max-width: 1200px;
     margin: 0 auto;
     position: relative;
-}
-
-main {
-    padding-top: 36px;
 }
 
 .container {
@@ -117,23 +110,6 @@ button.secondary {
 button.secondary:hover {
     color: var(--black);
     background-color: var(--gray);
-}
-
-nav {
-    display: flex;
-    align-items: center;
-    justify-content: end;
-    gap: 36px;
-    padding: 42px 0;
-
-    position: absolute;
-    top: 0;
-    right: 0;
-}
-
-nav a {
-    text-transform: uppercase;
-    font-size: 14px;
 }
 
 .form {
