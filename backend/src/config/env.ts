@@ -49,8 +49,8 @@ const env: EnvType = {
     ALLOWED_ORIGINS: getEnvVar("ALLOWED_ORIGINS", true),
     JWT_SECRET: getEnvVar("JWT_SECRET", true),
     JWT_EXPIRATION: getEnvVar("JWT_EXPIRATION", true) as StringValue,
-    REDIS_HOST: getEnvVar("REDIS_URL_HOST", true),
-    REDIS_PORT: getEnvVar("REDIS_URL_PORT", true),
+    REDIS_HOST: getEnvVar("REDIS_HOST", true),
+    REDIS_PORT: getEnvVar("REDIS_PORT", true),
     REDIS_URL: getEnvVar("REDIS_URL", true),
 };
 
