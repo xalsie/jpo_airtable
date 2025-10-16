@@ -4,13 +4,12 @@ import Logger from '../utils/logger'
 
 export type IProject = {
     getAll: (params?: {
-        limit?: number,
-        offset?: number,
-        maxRecords?: number,
-        pageSize?: number
+        limit: number,
+        offset: number
     }) => Promise<{ projects: TProject[]; total: number }>;
     getById: (id: string) => Promise<TProject | null>;
     updateLikes: (id: string, userId: string, type?: 'like'|'dislike') => Promise<void>;
+    search: (params? : { query: string, limit: number, offset: number }) => Promise<{ projects: TProject[]; total: number }>;
 }
 
 export class ProjectService implements IProject {
@@ -115,6 +114,26 @@ export class ProjectService implements IProject {
         } catch (error) {
             Logger.error('ProjectService', `Error updating likes for project ${id}:`, error);
             throw new Error('Failed to update likes');
+        }
+    }
+
+    async search({ query = '', limit = 10, offset = 0 }: { query?: string; limit?: number; offset?: number } = {}): Promise<{ projects: TProject[]; total: number }> {
+        try {
+            const allProjects = await this.getAll({ limit: 1000 });
+            const lowerQuery = query.toLowerCase();
+            const filtered = (allProjects?.projects || []).filter((p: TProject) =>
+                (p.title && p.title.toLowerCase().includes(lowerQuery)) ||
+                (p.description && p.description.toLowerCase().includes(lowerQuery)) ||
+                (p.keywords && p.keywords.some(keyword => keyword.toLowerCase().includes(lowerQuery)))
+            );
+
+            const paginated = filtered.slice(offset, offset + limit);
+            Logger.info('ProjectService', `Search for "${query}" returned ${filtered.length} results, paginated to ${paginated.length} (offset ${offset}, limit ${limit})`);
+
+            return { projects: paginated, total: filtered.length };
+        } catch (error) {
+            Logger.error('ProjectService', 'Error searching projects:', error);
+            throw new Error('Failed to search projects');
         }
     }
 }

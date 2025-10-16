@@ -126,4 +126,34 @@ export default (service: IProject) => async (fastify: FastifyInstance) => {
             reply.status(500).send({ message: 'Internal Server Error' });
         }
     });
+
+    fastify.get('/search', {
+        schema: {
+            tags: ['Projects'],
+            querystring: {
+                type: 'object',
+                properties: {
+                    q: { type: 'string', minLength: 1, maxLength: 100 },
+                    limit: { type: 'integer', minimum: 1, maximum: 100 },
+                    offset: { type: 'integer', minimum: 0 }
+                },
+                required: ['q']
+            }
+        }
+    }, async (request, reply) => {
+        try {
+            const { q } = request.query as { q: string; };
+            const projects = await service.search({
+                query: q,
+                limit: 10,
+                offset: 0
+            });
+
+            reply.header('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+            reply.status(200).send({ projects });
+        } catch (err) {
+            Logger.error('ProjectController', 'Error searching projects:', err);
+            reply.status(500).send({ message: 'Internal Server Error' });
+        }
+    })
 }
