@@ -55,21 +55,6 @@ export const useUserStore = defineStore("user", () => {
     }
 
     watch(token, (newToken) => {
-        if (!newToken) {
-            data.value = null;
-            isAuthenticated.value = false;
-
-            try {
-                const key = '__persisted__user';
-                sessionStorage.removeItem(key);
-                localStorage.removeItem(key);
-            } catch (e) {
-                console.error("Error clearing persisted state:", e);
-            }
-
-            return;
-        }
-
         const decoded = UserService.parseJwt(newToken);
         if (!decoded || !decoded.exp || decoded.exp * 1000 <= Date.now()) {
             data.value = null;
@@ -84,7 +69,9 @@ export const useUserStore = defineStore("user", () => {
             token.value = null;
             isAuthenticated.value = false;
         });
-    }, { immediate: true });
+    }, {
+        immediate: true
+    });
 
     return {
         token,
