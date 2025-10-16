@@ -1,7 +1,6 @@
 <script setup>
-import { computed, ref, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import { useUserStore } from '../store/useUser';
 import { useProjectStore } from "../store/useProject";
 import ProjectStars from '../components/ProjectStars.vue';
 import ActionButton from '../components/ActionButton.vue';
@@ -23,7 +22,7 @@ const load = async () => {
     }
     loading.value = false;
 };
-onMounted(load);
+onMounted(() => load());
 
 const onLiked = async (id, userLiked) => {
     await projectStore.likeProject(id, userLiked);
