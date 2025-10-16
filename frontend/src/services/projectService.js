@@ -84,6 +84,23 @@ export class ProjectService {
         }
         return { success: false, message: res.message || 'Erreur lors de la récupération du projet' };
     }
+
+    static async searchProjects({
+        query = '',
+        page = 1,
+        limit = 9
+    } = {}) {
+        const params = new URLSearchParams({ q: query, page, limit }).toString();
+        const res = await apiRequest(`${GET_PROJECTS_URL}/search?${params}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        if (res.success) {
+            const { projects = [], meta = {} } = res.data || {};
+            return { success: true, projects, meta };
+        }
+        return { success: false, message: res.message || 'Erreur lors de la recherche des projets' };
+    }
 }
 
 export default ProjectService;
