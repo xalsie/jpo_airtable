@@ -12,12 +12,13 @@ const showEmptyMessage = ref(false);
 const loading = ref(true);
 
 const searchValue = ref("");
+
 const search = async (page = 1) => {
     showEmptyMessage.value = false;
     loading.value = true;
     const res = await ProjectService.searchProjects({
         query: searchValue.value,
-        page,
+        page: (typeof page === 'number' && page > 0) ? page : 1,
         limit: projectStore.meta?.limit || 9,
     });
     if (res.success) {
@@ -68,6 +69,7 @@ const resetSearch = () => {
 };
 
 const loadPagination = (page) => {
+    console.log("load page", page);
     if (searchValue.value) {
         search(page);
     } else {

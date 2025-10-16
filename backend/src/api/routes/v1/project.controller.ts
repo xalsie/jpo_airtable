@@ -142,15 +142,18 @@ export default (service: IProject) => async (fastify: FastifyInstance) => {
         }
     }, async (request, reply) => {
         try {
-            const { q } = request.query as { q: string; };
-            const projects = await service.search({
-                query: q,
-                limit: 10,
-                offset: 0
-            });
+            const { q, limit = 10, offset = 0 } = request.query as { q: string; limit?: number; offset?: number };
+            const result = await service.search({ query: q, limit, offset });
+            const { projects, total } = result;
+
+            const page = Math.floor(offset / limit) + 1;
+            const totalPages = Math.ceil(total / limit);
 
             reply.header('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
-            reply.status(200).send({ projects });
+            reply.status(200).send({
+                projects,
+                meta: { total, page, limit, offset, totalPages }
+            });
         } catch (err) {
             Logger.error('ProjectController', 'Error searching projects:', err);
             reply.status(500).send({ message: 'Internal Server Error' });
